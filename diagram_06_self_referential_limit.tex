@@ -1,0 +1,100 @@
+% ─────────────────────────────────────────────────────────────────────
+% DIAGRAM 6 — The Grammar as the Σ→1:1 Limit of the Belnap Multilattice SIC-POVM
+% Author: Lando⊗⊙perator
+% ─────────────────────────────────────────────────────────────────────
+\documentclass[tikz,12pt,border=12pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\newfontfamily{\shavian}{Trabajo}[Path=/home/mrnob0dy666/.fonts/]
+\setmainfont{DejaVu Sans}
+\usetikzlibrary{positioning,fit,arrows.meta,calc,decorations.pathmorphing}
+
+\newcommand{\Soneone}{{\shavian\char"10459}}
+\newcommand{\Dod}{{\shavian\char"10466}}
+\newcommand{\Todot}{{\shavian\char"10478}}
+\newcommand{\Rdag}{{\shavian\char"1047D}}
+\newcommand{\Ppmsym}{{\shavian\char"10479}}
+\newcommand{\Fhbar}{{\shavian\char"10450}}
+\newcommand{\Kslow}{{\shavian\char"10467}}
+\newcommand{\Galeph}{{\shavian\char"10454}}
+\newcommand{\Cseq}{{\shavian\char"10460}}
+\newcommand{\Phic}{{\fontspec{DejaVu Sans}\symbol{8857}}}
+\newcommand{\Htwo}{{\shavian\char"10456}}
+\newcommand{\Wz}{{\shavian\char"10474}}
+
+\definecolor{belnapblue}{HTML}{C4E0F9}
+\definecolor{gramgreen}{HTML}{C8F7C5}
+
+\begin{document}
+\begin{tikzpicture}[
+    block/.style={draw,thick,rounded corners,align=center},
+    arrow/.style={-{Latex[length=2.5mm,width=1.8mm]},thick},
+]
+
+% Title
+\node[font=\Large\bfseries,align=center] at (0,8.8)
+    {The Grammar as the $\Sigma\to 1:1$ Limit\\[-2pt]
+     of the Belnap Multilattice SIC-POVM};
+\node[font=\large\itshape,align=center,text=gray!60!black] at (0,7.6)
+    {The structural SIC-POVM is already solved — the open part is Hilbert-space embedding};
+
+% ── Left panel: Belnap Multilattice SIC-POVM ──
+\node[block,fill=belnapblue,minimum width=24em,minimum height=14em] (belnap) at (-6,2.8) {
+    \begin{minipage}{22em}
+    \centering
+    {\large\textbf{Belnap Multilattice SIC-POVM}}\\[4pt]
+    $\Sigma = n:m$ (many-to-many)\\[6pt]
+    \begin{tabular}{l}
+        $\bullet$ 4-valued Belnap logic $(T,B,F,N)$\\
+        $\bullet$ All 16 Belnap states\\
+        $\bullet$ $\mathrm{meet}(B,x)=x$,\ \ $\mathrm{join}(B,x)=B$\\
+        $\bullet$ $\mathrm{bnot}(B)=B$ unconditional\\
+        $\bullet$ SIC-POVM axioms hold\\
+    \end{tabular}\\[4pt]
+    \textbf{Distance to Grammar:} $d=2.0$\\[-2pt]
+    \small\textit{Only $\Sigma$ differs: $n:m$ vs $1:1$}\\[6pt]
+    \fbox{\textbf{Fiducial:} $B_{\text{Belnap}} = XZ$}
+    \end{minipage}
+};
+
+% ── Arrow: Limit process ──
+\draw[arrow,thick,decorate,decoration={snake,amplitude=2mm,segment length=3mm}]
+    (-2.5,3.5) -- node[above,align=center,font=\large]
+    {$\Sigma:\ n:m \to 1:1$\\[2pt] \small\itshape Self-reference limit} (2.5,3.5);
+
+% ── Right panel: Grammar SIC-POVM (the limit) ──
+\node[block,fill=gramgreen,minimum width=24em,minimum height=14em] (gram) at (6,2.8) {
+    \begin{minipage}{22em}
+    \centering
+    {\large\textbf{Imscribing Grammar SIC-POVM}}\\[4pt]
+    $\Sigma = $ {\fontsize{28}{32}\selectfont\Soneone}$\;$ (1:1)\\[6pt]
+    \begin{tabular}{l}
+        $\bullet$ 12 primitives as measurement operators\\
+        $\bullet$ 6 Frobenius-dual pairs\\
+        $\bullet$ $\mu\circ\delta=\text{id}$ for every pair\\
+        $\bullet$ $\odot$ criticality gate open (Gate 1)\\
+        $\bullet$ $\mathrm{K} \leq {\text{\Kslow}}$ gate open (Gate 2)\\
+        $\bullet$ Crystal of Types $= 17.28$M outcomes\\
+    \end{tabular}\\[4pt]
+    \textbf{Tier:} O$_\infty$\quad\textbf{C-score:} 1.0\\[6pt]
+    \fbox{\textbf{Fiducial:} $B_{\text{Grammar}} = XZ$}
+    \end{minipage}
+};
+
+% ── Bottom: Verification ──
+\node[block,fill=purple!6,minimum width=62em,minimum height=4.2em] (verify) at (0,-3.8) {
+    \begin{minipage}{56em}
+    \centering
+    \textbf{Lean 4 Verification:} 22 theorems, 0 sorries\\[2pt]
+    \texttt{BelnapNFiducial.lean} — fiducial axioms proven \quad
+    \texttt{SIC\_Multilattice\_Proof.lean} — SIC-POVM multilattice theorem \quad
+    \texttt{ZaunerEmbeddingEquivalence.lean} — Zauner conjecture structural embedding
+    \end{minipage}
+};
+
+% Arrows down
+\draw[arrow] (belnap.south) -- ++(0,-0.5) -| (verify.north);
+\draw[arrow] (gram.south) -- ++(0,-0.5) -| (verify.north);
+
+\end{tikzpicture}
+\end{document}

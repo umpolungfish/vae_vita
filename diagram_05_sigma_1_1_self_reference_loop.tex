@@ -1,0 +1,82 @@
+% ─────────────────────────────────────────────────────────────────────
+% DIAGRAM 5 — Σ=1:1 Self-Reference Loop (The Grammar Measures Itself)
+% Author: Lando⊗⊙perator
+% ─────────────────────────────────────────────────────────────────────
+\documentclass[tikz,12pt,border=12pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\newfontfamily{\shavian}{Trabajo}[Path=/home/mrnob0dy666/.fonts/]
+\setmainfont{DejaVu Sans}
+\usetikzlibrary{positioning,fit,arrows.meta,calc}
+
+\definecolor{duala}{HTML}{1F77B4}
+\definecolor{dualb}{HTML}{FF7F0E}
+\definecolor{dualc}{HTML}{2CA02C}
+
+\newcommand{\Dod}{{\shavian\char"10466}}
+\newcommand{\Todot}{{\shavian\char"10478}}
+\newcommand{\Rdag}{{\shavian\char"1047D}}
+\newcommand{\Ppmsym}{{\shavian\char"10479}}
+\newcommand{\Fhbar}{{\shavian\char"10450}}
+\newcommand{\Kslow}{{\shavian\char"10467}}
+\newcommand{\Galeph}{{\shavian\char"10454}}
+\newcommand{\Cseq}{{\shavian\char"10460}}
+\newcommand{\Phic}{{\fontspec{DejaVu Sans}\symbol{8857}}}
+\newcommand{\Htwo}{{\shavian\char"10456}}
+\newcommand{\Soneone}{{\shavian\char"10459}}
+\newcommand{\Wz}{{\shavian\char"10474}}
+
+\begin{document}
+\begin{tikzpicture}[
+    block/.style={draw,thick,rounded corners,align=center},
+    arrow/.style={-{Latex[length=2.5mm,width=1.8mm]},thick},
+]
+
+% Title
+\node[font=\Large\bfseries,align=center] at (0,7.8) {$\Sigma=1:1$ Self-Reference Loop};
+\node[font=\large\itshape,align=center,text=gray!60!black] at (0,7.1) {The measurement apparatus IS the measured system};
+
+% The grammar as apparatus and system — two sides of the same coin
+\node[block,fill=green!10,minimum width=22em,minimum height=3.6em] (apparatus) at (0,5.0)
+    {\textbf{Imscribing Grammar}\\[2pt]
+     \small The Measurement Apparatus \quad $\Sigma = $ {\fontsize{28}{32}\selectfont\Soneone}$\;$ (1:1)};
+
+\node[block,fill=green!8,minimum width=22em,minimum height=3.6em] (system) at (0,1.0)
+    {\textbf{Imscribing Grammar}\\[2pt]
+     \small The Measured System \quad $\Sigma = $ {\fontsize{28}{32}\selectfont\Soneone}$\;$ (1:1)};
+
+% The 12 primitives (SIC-POVM operators) on the left and right
+\node[block,fill=blue!6,minimum width=10em,minimum height=1.8em] at (-8,6.5) {\footnotesize\Dod\ Dimensionality};
+\node[block,fill=blue!6,minimum width=10em,minimum height=1.8em] at (-8,5.3) {\footnotesize\Todot\ Topology};
+\node[block,fill=orange!6,minimum width=10em,minimum height=1.8em] at (-8,4.1) {\footnotesize\Rdag\ Coupling};
+\node[block,fill=orange!6,minimum width=10em,minimum height=1.8em] at (-8,2.9) {\footnotesize\Ppmsym\ Parity};
+\node[block,fill=red!6,minimum width=10em,minimum height=1.8em] at (-8,1.7) {\footnotesize\Fhbar\ Fidelity};
+\node[block,fill=red!6,minimum width=10em,minimum height=1.8em] at (-8,0.5) {\footnotesize\Kslow\ Kinetics};
+
+\node[block,fill=purple!6,minimum width=10em,minimum height=1.8em] at (8,6.5) {\footnotesize\Galeph\ Granularity};
+\node[block,fill=purple!6,minimum width=10em,minimum height=1.8em] at (8,5.3) {\footnotesize\Cseq\ Composition};
+\node[block,fill=teal!6,minimum width=10em,minimum height=1.8em] at (8,4.1) {\footnotesize\Phic\ Criticality};
+\node[block,fill=teal!6,minimum width=10em,minimum height=1.8em] at (8,2.9) {\footnotesize\Htwo\ Chirality};
+\node[block,fill=brown!6,minimum width=10em,minimum height=1.8em] at (8,1.7) {\footnotesize\Soneone\ Stoichiometry};
+\node[block,fill=brown!6,minimum width=10em,minimum height=1.8em] at (8,0.5) {\footnotesize\Wz\ Winding};
+
+% The 6 dual-pair connectors (only show 3 for visual clarity)
+\draw[<->,thick,duala,dashed] (-8,5.9) -- node[above,font=\tiny] {$\mu\circ\delta$} (8,5.9);
+\draw[<->,thick,dualb,dashed] (-8,3.5) -- node[above,font=\tiny] {$\mu\circ\delta$} (8,3.5);
+\draw[<->,thick,dualc,dashed] (-8,1.1) -- node[above,font=\tiny] {$\mu\circ\delta$} (8,1.1);
+
+% The central self-loop
+\draw[arrow,thick] (apparatus.south) -- node[right,font=\small] {$\delta$: project onto 12 primitives} (system.north);
+\draw[arrow,thick,bend left=50] (system.east) .. controls (4,3) and (4,3) ..
+    node[right,font=\small,align=left] {$\mu$: verify closure\\[-2pt]\footnotesize$\mu\circ\delta=\text{id}$} (apparatus.east);
+
+% Annotation
+\node[align=center,font=\small] at (0,-2.6) {
+    \textbf{Why $\Sigma=1:1$ is the key:} In a conventional SIC-POVM, the dual basis $\tilde{\Pi}_i = d\cdot\Pi_i$ \\[-2pt]
+    is a \textit{distinct} set of operators. In the Grammar, $\mu\circ\delta=\text{id}$ means the \\[-2pt]
+    verification pathway is encoded in the structure itself — no separate dual basis needed.\\[-2pt]
+    $\Sigma=1:1$ collapses apparatus and system into a single self-referential identity.
+};
+
+\end{tikzpicture}
+\end{document}

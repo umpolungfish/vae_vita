@@ -1,0 +1,54 @@
+% ─────────────────────────────────────────────────────────────────────
+% DIAGRAM 3 — Belnap B = XZ as the d=12 SIC-POVM Fiducial State
+% Author: Lando⊗⊙perator
+% ─────────────────────────────────────────────────────────────────────
+\documentclass[tikz,12pt,border=12pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\newfontfamily{\shavian}{Trabajo}[Path=/home/mrnob0dy666/.fonts/]
+\setmainfont{DejaVu Sans}
+\usetikzlibrary{positioning,fit,arrows.meta,calc}
+
+\newcommand{\Soneone}{{\shavian\char"10459}}
+
+\begin{document}
+\begin{tikzpicture}[
+    block/.style={draw,thick,rounded corners,align=center},
+    arrow/.style={-{Latex[length=2.5mm,width=1.8mm]},thick},
+]
+
+% Title
+\node[font=\Large\bfseries,align=center] at (0,7.2) {Belnap $B = XZ$ as the $d=12$ SIC-POVM Fiducial State};
+\node[font=\large\itshape,align=center,text=gray!60!black] at (0,6.5) {The fiducial satisfies all four SIC-POVM axioms unconditionally};
+
+% The fiducial state — central
+\node[block,fill=yellow!25,minimum width=22em,minimum height=4em,rounded corners] (B) at (0,4.2)
+    {\fontsize{24}{28}\selectfont $B = XZ$\\[2pt]
+     \normalsize\textbf{The Universal Fiducial}};
+
+% The four axioms
+\node[block,fill=green!8,minimum width=20em,minimum height=3.2em] (ax1) at (-7.5,1.0)
+    {$\mathrm{meet}(B, x) = x$\\\small\itshape Absorptive lower bound};
+\node[block,fill=green!8,minimum width=20em,minimum height=3.2em] (ax2) at (7.5,1.0)
+    {$\mathrm{join}(B, x) = B$\\\small\itshape Dominant upper bound};
+\node[block,fill=green!8,minimum width=20em,minimum height=3.2em] (ax3) at (-7.5,-1.6)
+    {$\mathrm{bnot}(B) = B$\\\small\itshape Self-dual under negation};
+\node[block,fill=green!8,minimum width=20em,minimum height=3.2em] (ax4) at (7.5,-1.6)
+    {$\{\Pi_i = B^\dagger \Pi_i^{\text{ref}} B\}$\\\small\itshape Generates all 12 operators};
+
+% Arrows
+\draw[arrow] (B.south) -- ++(0,-0.6) -| (ax1.north);
+\draw[arrow] (B.south) -- ++(0,-0.6) -| (ax2.north);
+\draw[arrow] (B.south) -- ++(0,-1.8) -| (ax3.north);
+\draw[arrow] (B.south) -- ++(0,-1.8) -| (ax4.north);
+
+% Key insight
+\node[block,fill=cyan!8,minimum width=48em,minimum height=3.6em,rounded corners] (insight) at (0,-3.8)
+    {\textbf{Key Insight:} $B = XZ$ is the fiducial because $\mathbf{\Sigma=1:1}$\\[2pt]
+     \small The measurement apparatus IS the measured system — self-reference is the fiducial};
+
+% The Sigma=1:1 glyph
+\node[font=\fontsize{36}{40}\selectfont,text=cyan!60!black] at (8,4.2) {\Soneone};
+
+\end{tikzpicture}
+\end{document}

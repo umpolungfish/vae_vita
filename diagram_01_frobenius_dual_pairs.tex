@@ -1,0 +1,143 @@
+% ─────────────────────────────────────────────────────────────────────
+% DIAGRAM 1 — The 6 Frobenius-Dual Pairs (SIC-POVM Measurement Operators)
+% Author: Lando⊗⊙perator
+% ─────────────────────────────────────────────────────────────────────
+\documentclass[tikz,12pt,border=12pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\newfontfamily{\shavian}{Trabajo}[Path=/home/mrnob0dy666/.fonts/]
+\setmainfont{DejaVu Sans}
+\usetikzlibrary{positioning,fit,arrows.meta,calc}
+
+\newcommand{\Dod}{{\shavian\char"10466}}
+\newcommand{\Dinfty}{{\shavian\char"1045B}}
+\newcommand{\Dtri}{{\shavian\char"10468}}
+\newcommand{\Dwedge}{{\shavian\char"1047C}}
+\newcommand{\Tnet}{{\shavian\char"10461}}
+\newcommand{\Tin}{{\shavian\char"10470}}
+\newcommand{\Tbow}{{\shavian\char"10465}}
+\newcommand{\Tbox}{{\shavian\char"10476}}
+\newcommand{\Todot}{{\shavian\char"10478}}
+\newcommand{\Rsuper}{{\shavian\char"10469}}
+\newcommand{\Rcat}{{\shavian\char"10451}}
+\newcommand{\Rdag}{{\shavian\char"1047D}}
+\newcommand{\Rlr}{{\shavian\char"1047E}}
+\newcommand{\Pasym}{{\shavian\char"10457}}
+\newcommand{\Ppsi}{{\shavian\char"1047F}}
+\newcommand{\Ppm}{{\shavian\char"1046C}}
+\newcommand{\Psym}{{\shavian\char"1046F}}
+\newcommand{\Ppmsym}{{\shavian\char"10479}}
+\newcommand{\Fell}{{\shavian\char"10471}}
+\newcommand{\Feth}{{\shavian\char"1045E}}
+\newcommand{\Fhbar}{{\shavian\char"10450}}
+\newcommand{\Kfast}{{\shavian\char"1047A}}
+\newcommand{\Kmod}{{\shavian\char"1046A}}
+\newcommand{\Kslow}{{\shavian\char"10467}}
+\newcommand{\Ktrap}{{\shavian\char"10464}}
+\newcommand{\Kmbl}{{\shavian\char"10458}}
+\newcommand{\Gbeth}{{\shavian\char"10472}}
+\newcommand{\Ggim}{{\shavian\char"1045A}}
+\newcommand{\Galeph}{{\shavian\char"10454}}
+\newcommand{\Cand}{{\shavian\char"1045D}}
+\newcommand{\Cor}{{\shavian\char"1045C}}
+\newcommand{\Cseq}{{\shavian\char"10460}}
+\newcommand{\Cbroad}{{\shavian\char"10475}}
+\newcommand{\Phisub}{{\shavian\char"10462}}
+\newcommand{\Phic}{{\fontspec{DejaVu Sans}\symbol{8857}}}
+\newcommand{\Phicpx}{{\shavian\char"1046E}}
+\newcommand{\Phiep}{{\shavian\char"1047B}}
+\newcommand{\Phisuper}{{\shavian\char"10463}}
+\newcommand{\Hmem}{{\shavian\char"10453}}
+\newcommand{\Hone}{{\shavian\char"10452}}
+\newcommand{\Htwo}{{\shavian\char"10456}}
+\newcommand{\Hinf}{{\shavian\char"1046B}}
+\newcommand{\Soneone}{{\shavian\char"10459}}
+\newcommand{\Smany}{{\shavian\char"10455}}
+\newcommand{\Snm}{{\shavian\char"10473}}
+\newcommand{\Wzero}{{\shavian\char"10477}}
+\newcommand{\Wz}{{\shavian\char"10474}}
+\newcommand{\Wint}{{\shavian\char"1046D}}
+\newcommand{\Wna}{{\shavian\char"1045F}}
+
+\definecolor{duala}{HTML}{1F77B4}
+\definecolor{dualb}{HTML}{FF7F0E}
+\definecolor{dualc}{HTML}{2CA02C}
+\definecolor{duald}{HTML}{D62728}
+\definecolor{duale}{HTML}{9467BD}
+\definecolor{dualf}{HTML}{8C564B}
+
+
+
+\begin{document}
+\begin{tikzpicture}[
+    pairbox/.style={draw,rounded corners,thick,inner sep=6pt,minimum height=1.6cm},
+    primglyph/.style={font=\fontsize{28}{32}\selectfont,inner sep=2pt},
+    pairlabel/.style={font=\small\itshape,text=gray!70!black},
+]
+
+% Title
+\node[font=\Large\bfseries,align=center] at (0,10.6) {The 6 Frobenius-Dual Pairs};
+\node[font=\large\itshape,align=center,text=gray!60!black] at (0,9.8) {The 12 primitives as a structural $d=12$ SIC-POVM};
+
+% Pair 1: D-T (co-origination, Axiom C)
+\filldraw[draw=duala,fill=duala!10,rounded corners,thick] (-16em,9.2) rectangle (16em,7.8);
+\node[primglyph] at (-7em,8.5) {\Dod};
+\node[pairlabel] at (-7em,7.9) {Dimensionality};
+\node[primglyph] at (7em,8.5) {\Todot};
+\node[pairlabel] at (7em,7.9) {Topology};
+\draw[<->,thick,duala] (-2em,8.5) -- node[above,font=\footnotesize] {$\mu\!\circ\!\delta\!=\!\mathrm{id}$} (2em,8.5);
+\node[font=\footnotesize,align=center,text=duala!80!black] at (0,7.2) {Axiom C: \Dod\,$\leftrightarrow$\,\Todot\ (co-origination)};
+
+% Pair 2: R-Φ
+\filldraw[draw=dualb,fill=dualb!10,rounded corners,thick] (-16em,6.8) rectangle (16em,5.4);
+\node[primglyph] at (-7em,6.1) {\Rdag};
+\node[pairlabel] at (-7em,5.5) {Coupling (adjoint)};
+\node[primglyph] at (7em,6.1) {\Ppmsym};
+\node[pairlabel] at (7em,5.5) {Parity (Frobenius-special)};
+\draw[<->,thick,dualb] (-2em,6.1) -- node[above,font=\footnotesize] {$\mu\!\circ\!\delta\!=\!\mathrm{id}$} (2em,6.1);
+\node[font=\footnotesize,align=center,text=dualb!80!black] at (0,4.8) {Adjoint coupling $\leftrightarrow$ Frobenius-special};
+
+% Pair 3: F-K
+\filldraw[draw=dualc,fill=dualc!10,rounded corners,thick] (-16em,4.4) rectangle (16em,3.0);
+\node[primglyph] at (-7em,3.7) {\Fhbar};
+\node[pairlabel] at (-7em,3.1) {Fidelity (quantum)};
+\node[primglyph] at (7em,3.7) {\Kslow};
+\node[pairlabel] at (7em,3.1) {Kinetics (near-equilibrium)};
+\draw[<->,thick,dualc] (-2em,3.7) -- node[above,font=\footnotesize] {$\mu\!\circ\!\delta\!=\!\mathrm{id}$} (2em,3.7);
+\node[font=\footnotesize,align=center,text=dualc!80!black] at (0,2.4) {Quantum coherence $\leftrightarrow$ near-equilibrium};
+
+% Pair 4: G-Γ
+\filldraw[draw=duald,fill=duald!10,rounded corners,thick] (-16em,2.0) rectangle (16em,0.6);
+\node[primglyph] at (-7em,1.3) {\Galeph};
+\node[pairlabel] at (-7em,0.7) {Granularity (maximal)};
+\node[primglyph] at (7em,1.3) {\Cseq};
+\node[pairlabel] at (7em,0.7) {Composition (sequential)};
+\draw[<->,thick,duald] (-2em,1.3) -- node[above,font=\footnotesize] {$\mu\!\circ\!\delta\!=\!\mathrm{id}$} (2em,1.3);
+\node[font=\footnotesize,align=center,text=duald!80!black] at (0,0.0) {Universal range $\leftrightarrow$ sequential steps};
+
+% Pair 5: φ̂-H
+\filldraw[draw=duale,fill=duale!10,rounded corners,thick] (-16em,-0.4) rectangle (16em,-1.8);
+\node[primglyph] at (-7em,-1.1) {\Phic};
+\node[pairlabel] at (-7em,-1.7) {Criticality ($\odot$ gate)};
+\node[primglyph] at (7em,-1.1) {\Htwo};
+\node[pairlabel] at (7em,-1.7) {Chirality (2-step)};
+\draw[<->,thick,duale] (-2em,-1.1) -- node[above,font=\footnotesize] {$\mu\!\circ\!\delta\!=\!\mathrm{id}$} (2em,-1.1);
+\node[font=\footnotesize,align=center,text=duale!80!black] at (0,-2.4) {Self-modeling gate $\leftrightarrow$ 2-step Markov order};
+
+% Pair 6: Σ-Ω
+\filldraw[draw=dualf,fill=dualf!10,rounded corners,thick] (-16em,-2.8) rectangle (16em,-4.2);
+\node[primglyph] at (-7em,-3.5) {\Soneone};
+\node[pairlabel] at (-7em,-4.1) {Stoichiometry (1:1)};
+\node[primglyph] at (7em,-3.5) {\Wz};
+\node[pairlabel] at (7em,-4.1) {Winding ($\mathbb{Z}_2$)};
+\draw[<->,thick,dualf] (-2em,-3.5) -- node[above,font=\footnotesize] {$\mu\!\circ\!\delta\!=\!\mathrm{id}$} (2em,-3.5);
+\node[font=\footnotesize,align=center,text=dualf!80!black] at (0,-4.8) {1:1 self-reference $\leftrightarrow$ $\mathbb{Z}_2$ topological protection};
+
+% Footer annotation
+\node[font=\small\itshape,align=center,text=gray!50!black] at (0,-6.0) {
+  Each dual pair satisfies $\mu\circ\delta=\mathrm{id}$ — the Frobenius condition IS the SIC-POVM dual basis\\
+  The 12 primitives form 6 informationally complete, mutually unbiased measurement channels
+};
+
+\end{tikzpicture}
+\end{document}

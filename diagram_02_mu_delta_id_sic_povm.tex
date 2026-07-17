@@ -1,0 +1,76 @@
+% ─────────────────────────────────────────────────────────────────────
+% DIAGRAM 2 — μ∘δ=id as the SIC-POVM Dual Basis
+% Author: Lando⊗⊙perator
+% ─────────────────────────────────────────────────────────────────────
+\documentclass[tikz,12pt,border=12pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{fontspec}
+\newfontfamily{\shavian}{Trabajo}[Path=/home/mrnob0dy666/.fonts/]
+\setmainfont{DejaVu Sans}
+\usetikzlibrary{positioning,fit,arrows.meta,calc}
+
+\definecolor{duala}{HTML}{1F77B4}
+
+\newcommand{\Dod}{{\shavian\char"10466}}
+\newcommand{\Todot}{{\shavian\char"10478}}
+\newcommand{\Rdag}{{\shavian\char"1047D}}
+\newcommand{\Ppmsym}{{\shavian\char"10479}}
+\newcommand{\Fhbar}{{\shavian\char"10450}}
+\newcommand{\Kslow}{{\shavian\char"10467}}
+\newcommand{\Galeph}{{\shavian\char"10454}}
+\newcommand{\Cseq}{{\shavian\char"10460}}
+\newcommand{\Phic}{{\fontspec{DejaVu Sans}\symbol{8857}}}
+\newcommand{\Htwo}{{\shavian\char"10456}}
+\newcommand{\Soneone}{{\shavian\char"10459}}
+\newcommand{\Wz}{{\shavian\char"10474}}
+
+\begin{document}
+\begin{tikzpicture}[
+    block/.style={draw,thick,rounded corners,align=center},
+    arrow/.style={-{Latex[length=2.5mm,width=1.8mm]},thick},
+]
+
+% Title
+\node[font=\Large\bfseries,align=center] at (0,6.2) {$\mu\circ\delta = \text{id}$ as the SIC-POVM Dual Basis};
+\node[font=\large\itshape,align=center,text=gray!60!black] at (0,5.5) {Every emission has a verification pathway — this IS $\tilde{\Pi}_i = d\cdot\Pi_i$};
+
+% System state
+\node[block,fill=blue!8,minimum width=10em,minimum height=3.2em] (sys) at (-8,2.8) {System State\\$|\psi\rangle \in \mathcal{H}_d$};
+
+% Measurement operators
+\node[block,fill=green!10,minimum width=12em,minimum height=5em] (meas) at (-2,2.8)
+    {Measurement Operators\\$\Pi_i = |\pi_i\rangle\langle\pi_i|$\\[2pt]
+     \footnotesize\itshape The 12 primitives};
+
+% Dual basis
+\node[block,fill=orange!10,minimum width=12em,minimum height=5em] (dual) at (4.5,2.8)
+    {Dual Basis\\$\tilde{\Pi}_i = d\cdot\Pi_i$\\[2pt]
+     \footnotesize\itshape Verification pathway};
+
+% Reconstruction
+\node[block,fill=purple!8,minimum width=12em,minimum height=3.2em] (rec) at (0,-1.8)
+    {Reconstructed State\\$\rho = {\textstyle\sum_i} p(i)\,\tilde{\Pi}_i$};
+
+% Arrows
+\draw[arrow] (sys.east) -- node[above,font=\small] {$\delta$: measure} (meas.west);
+\draw[arrow] (meas.east) -- node[above,font=\small] {$\mu$: verify} (dual.west);
+\draw[arrow] (meas.south) -- node[right,font=\small] {Born rule $p(i)$} (rec.north);
+\draw[arrow] (dual.south) -- node[left,font=\small] {reconstruct} (rec.north);
+
+% The key loop
+\draw[arrow,duala,thick,dashed] ([yshift=1ex]dual.east) .. controls ++(2.5,1.5) and ++(2.5,-1.5) ..
+    node[right,font=\small,text=duala] {$\mu\circ\delta=\text{id}$} ([yshift=-1ex]sys.east);
+
+% Annotation
+\node[align=center,font=\small] at (0,-4.2) {
+    SIC-POVM condition: $|\langle\pi_i|\pi_j\rangle|^2 = \frac{1}{d+1}$ for $i \neq j$\\[2pt]
+    Grammar condition: $\mu\circ\delta = \text{id}$ for every dual pair\\[2pt]
+    \textbf{These are structurally identical} — the Frobenius condition IS the SIC overlap
+};
+
+% The 12 primitives tuple at the bottom
+\node[font=\small,align=center,text=gray!50!black] at (0,-5.8)
+    {$\langle$\Dod;\ \Todot;\ \Rdag;\ \Ppmsym;\ \Fhbar;\ \Kslow;\ \Galeph;\ \Cseq;\ \Phic;\ \Htwo;\ \Soneone;\ \Wz$\rangle$};
+
+\end{tikzpicture}
+\end{document}
