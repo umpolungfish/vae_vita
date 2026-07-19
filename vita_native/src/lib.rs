@@ -7,3 +7,4 @@
 //! emitted by the imasm instruments so every label is tool-grounded.
 
 pub mod alphabet;
+pub mod template;
