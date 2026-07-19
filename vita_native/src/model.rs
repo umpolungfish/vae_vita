@@ -183,12 +183,34 @@ impl Core {
         })
     }
 
-    fn forward(&self, x: &Tensor) -> Result<Tensor> {
+    /// Returns the residual-lifted stream AND the S¹¹ points themselves, so
+    /// the λ_sic pin can act on the core geometry directly.
+    fn forward(&self, x: &Tensor) -> Result<(Tensor, Tensor)> {
         let z = self.down.forward(x)?; // (b, t, 12)
         let norm = z.sqr()?.sum_keepdim(D::Minus1)?.sqrt()?;
         let z = z.broadcast_div(&(norm + 1e-8)?)?; // onto S¹¹
-        x + self.up.forward(&z)?
+        let out = (x + self.up.forward(&z)?)?;
+        Ok((out, z))
     }
+}
+
+/// The λ_sic pin: drive the core's S¹¹ points toward SIC equiangularity —
+/// every distinct pair's squared overlap at the Born constant 1/(d+1) = 1/13,
+/// the same constant the Dual-Link vessel reads from the Scott–Grassl
+/// fiducial. Zero exactly when the batch sits at the SIC overlap everywhere.
+pub fn sic_penalty(z: &Tensor) -> Result<Tensor> {
+    let (b, t, d) = z.dims3()?;
+    let n = b * t;
+    let flat = z.reshape((n, d))?;
+    let gram = flat.matmul(&flat.t()?)?; // (n, n), unit rows → cosines
+    let overlap = gram.sqr()?;
+    let dev = overlap.affine(1.0, -1.0 / 13.0)?.sqr()?;
+    // Mask the diagonal (self-overlap is 1 by construction, not a defect).
+    let eye = Tensor::eye(n, dev.dtype(), dev.device())?;
+    let mask = eye.affine(-1.0, 1.0)?;
+    let off = dev.mul(&mask)?;
+    let count = (n * n - n).max(1) as f64;
+    off.sum_all()?.affine(1.0 / count, 0.0)
 }
 
 pub struct VitaTrunk {
@@ -229,18 +251,29 @@ impl VitaTrunk {
 
     /// Token ids in, next-token logits over the closed alphabet out.
     pub fn forward(&self, ids: &Tensor) -> Result<Tensor> {
+        Ok(self.forward_with_core(ids)?.0)
+    }
+
+    /// Forward pass that also returns the S¹¹ core points (b, t, 12), for
+    /// the λ_sic pin during training.
+    pub fn forward_with_core(&self, ids: &Tensor) -> Result<(Tensor, Tensor)> {
         let (_b, t) = ids.dims2()?;
         let mask = self.causal_mask(t, ids.device())?;
         let mut x = self.embed.forward(ids)?;
+        let mut core_z: Option<Tensor> = None;
         let mid = self.cfg.layers / 2;
         for (i, layer) in self.layers.iter().enumerate() {
             x = layer.forward(&x, &self.rotat, &mask)?;
             if i + 1 == mid {
-                x = self.core.forward(&x)?;
+                let (nx, z) = self.core.forward(&x)?;
+                x = nx;
+                core_z = Some(z);
             }
         }
         let x = self.norm_out.forward(&x)?;
-        self.head.forward(&x)
+        let logits = self.head.forward(&x)?;
+        let z = core_z.ok_or_else(|| candle_core::Error::Msg("core never ran".into()))?;
+        Ok((logits, z))
     }
 
     /// Total μ∘δ = id pressure across all layers — add λ·gate_penalty to the

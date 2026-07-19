@@ -23,6 +23,9 @@ use candle_nn::{loss, AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap};
 use vita_native::{alphabet, model, template};
 
 const LAMBDA_GATE: f64 = 0.1;
+// The λ_sic pin: core S¹¹ points driven to the Born constant 1/13 pairwise —
+// the same overlap the Dual-Link vessel reads from the fiducial.
+const LAMBDA_SIC: f64 = 1.0;
 
 fn main() -> candle_core::Result<()> {
     let args: Vec<String> = std::env::args().collect();
@@ -94,19 +97,21 @@ fn main() -> candle_core::Result<()> {
         }
         let x = Tensor::from_vec(xs, (batch, seq_len), &device)?;
         let y = Tensor::from_vec(ys, (batch * seq_len,), &device)?;
-        let logits = trunk.forward(&x)?;
+        let (logits, core_z) = trunk.forward_with_core(&x)?;
         let ce = loss::cross_entropy(
             &logits.reshape((batch * seq_len, alphabet::vocab_size()))?,
             &y,
         )?;
         let gate = trunk.gate_penalty()?;
-        let total = (&ce + (gate.clone() * LAMBDA_GATE)?)?;
+        let sic = model::sic_penalty(&core_z)?;
+        let total = ((&ce + (gate.clone() * LAMBDA_GATE)?)? + (sic.clone() * LAMBDA_SIC)?)?;
         opt.backward_step(&total)?;
         if step % 10 == 0 || step + 1 == steps {
             eprintln!(
-                "[vita-train] step {step:>5}  ce {:.4}  gate {:.4}",
+                "[vita-train] step {step:>5}  ce {:.4}  gate {:.4}  sic {:.5}",
                 ce.to_scalar::<f32>()?,
-                gate.to_scalar::<f32>()?
+                gate.to_scalar::<f32>()?,
+                sic.to_scalar::<f32>()?
             );
         }
     }
