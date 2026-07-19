@@ -1,24 +1,12 @@
-Head-to-head at the gate: the lattice beats the trunk on every axis.
+vita-corpus: render the real organisms; vita-speak: kernel valence discipline as logit mask
 
-Same dataset (1k oracle-labeled), same 5000 steps, same loss, same mouth:
+vita-corpus walks ob3ect/digital, takes each ob3ect's protocol word, and labels
+it through the same three instruments as the synthetic set — identical schema,
+oracle-labeled. First census: 879 records, 830 kernel-T / 49 B / 0 F. The real
+organisms are closure by default; the synthetic babble never was.
 
-            params      gate      admission     refused   kernel green
-  trunk     ~4.0M       0.0048    9/12          3 (F)     0/12
-  lattice   ~574k       0.00      12/12         0         0/12
+vita-speak now samples under the fork stack: ● only over an open ◇, ⊣ only at
+depth 0, forced closure at the cap. Every utterance leaves the mouth
+δ/μ-balanced; kernel green now measures whether the arms carry work.
 
-The 26-step protocol lattice — 7x fewer parameters, one CLINK attention
-against the trunk's twelve, roughly an order of magnitude less compute —
-admits 12/12 at the containment gate where the trunk admitted 9/12. The
-gate penalty rests at zero almost immediately: when the architecture IS the
-protocol, mu.delta=id is the rest state, not a regularizer. The lattice's
-speech is visibly delta/mu-structured and never utters the degenerate seals
-that got the trunk refused; a fork stack in the dataflow does not speak
-unforked words.
-
-Still open, both architectures: kernel green 0/12 — no utterance closes as
-mu.delta over a TRANSFORMED object. The two levers named: mask the loss to
-the answer arm (query arm pure opcode; label leakage persists at ~2-3
-words per dozen), and feed the real corpus (ob3ect/digital as certified
-turns). The structural claim this measures: the ob3ect's protocol word is
-a better prior over grammar-speech than uniform depth — structure
-substituting for scale.
+Weights ignored (*.safetensors); corpus jsonl committed as the measured output.

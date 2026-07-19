@@ -27,3 +27,7 @@ path = "src/train.rs"
 [[bin]]
 name = "vita-speak"
 path = "src/speak.rs"
+
+[[bin]]
+name = "vita-corpus"
+path = "src/corpus.rs"

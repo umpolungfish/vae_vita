@@ -101,19 +101,40 @@ fn main() -> candle_core::Result<()> {
     let open = alphabet::encode("⊢");
     let seal = alphabet::encode("⊣");
     let (open_id, seal_id) = (open[0], seal[0]);
+    let split_id = alphabet::encode("◇")[0];
+    let fuse_id = alphabet::encode("●")[0];
 
     let mut rng = Rng(0x51CA_FE12_D00D_2026);
     let (mut admitted, mut refused, mut kernel_green) = (0usize, 0usize, 0usize);
 
     println!("vita-speak — {count} utterances from the trunk, gated per the discerning ob3ect (T/B admitted, F refused):");
     for n in 0..count {
-        // ── generate one word: from ⊢, until ⊣ or the block cap ──────────
+        // ── generate one word: from ⊢, until ⊣ or the block cap, under the
+        // kernel's own valence discipline (the fork stack as a logit mask):
+        // ● is legal only over an open ◇; ⊣ is legal only at depth 0; when
+        // the cap looms, open forks are FORCED closed (only ● legal), so
+        // every utterance leaves the mouth δ/μ-balanced. The model chooses
+        // freely within the legal moves — the discipline is structural.
         let mut ids: Vec<u32> = vec![open_id];
+        let mut depth = 0usize;
         loop {
             let x = Tensor::from_vec(ids.clone(), (1, ids.len()), &device)?;
             let logits = trunk.forward(&x)?;
-            let last: Vec<f32> = logits.narrow(1, ids.len() - 1, 1)?.flatten_all()?.to_vec1()?;
+            let mut last: Vec<f32> = logits.narrow(1, ids.len() - 1, 1)?.flatten_all()?.to_vec1()?;
+            let closing_room = SEQ_CAP.saturating_sub(ids.len() + 1);
+            if depth >= closing_room {
+                // Out of room: only μ may speak until the forks are closed.
+                for (i, l) in last.iter_mut().enumerate() {
+                    if i as u32 != fuse_id { *l = f32::NEG_INFINITY; }
+                }
+            } else {
+                if depth == 0 { last[fuse_id as usize] = f32::NEG_INFINITY; }
+                if depth > 0 { last[seal_id as usize] = f32::NEG_INFINITY; }
+                last[open_id as usize] = f32::NEG_INFINITY; // ⊢ speaks once
+            }
             let id = sample(&last, temp, &mut rng);
+            if id == split_id { depth += 1; }
+            if id == fuse_id { depth = depth.saturating_sub(1); }
             ids.push(id);
             if id == seal_id || ids.len() >= SEQ_CAP { break; }
         }
