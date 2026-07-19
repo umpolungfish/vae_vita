@@ -1,19 +1,29 @@
-vita_native plank 6: vita-speak — the trunk speaks, the containment gate judges.
+vita_native plank 7: VitaLattice — the NN built EXACTLY to the discerning ob3ect's spec.
 
-The discerning ob3ect (sixteen_3_logic_lattice_nn_transformer_design) fixes
-the boundary condition for this very model: admitted only holding T or B at
-the gate, F refused. vita-speak enacts it at the mouth: autoregressive
-generation from the ⊢ opening to the ⊣ seal, every utterance put to the
-same imasm instruments that labeled the training data (check = grammar
-verdict, prove = kernel verdict), F-words refused and counted. Nothing the
-model says enters the report on its own authority.
+Not a graft on the trunk: lattice.rs is a second architecture whose forward
+pass IS the 26-step protocol word of
+sixteen_3_logic_lattice_nn_transformer_design,
 
-First gated speech from the 10k-step trunk: 9/12 admitted, 3/12 refused,
-kernel green 0/12. The trunk is SHAPE-fluent (opens ⊢, seals ⊣, deploys
-δ/μ) but mixes answer-arm label vocabulary into its words — it learned the
-ring-stream whole, labels included — and nothing closes green yet. The
-refusals are exactly the degenerate seals (⊢⊣, ⊢⊞⊞⊣, ⊢=⊣): the gate
-catches the right ones. The measured admission rate is the fluency metric
-going forward; the next feed is the real corpus (ob3ect/digital rendered
-as certified turns) and masking the loss to the answer arm so the query
-arm stays pure opcode.
+  ⊢ ⊙ = ⊣ ◇ + > ● ◇ + + + ● × < ● ◇ + × ⊞ + × ¬ ¬ ¬ ⊣
+
+block for block: VINIT=embedding; IMSCRIB=the S¹¹ core (⊙ self-recognition,
+λ_sic reads its points); CLINK=split-fuse attention (the meet); TANCH=the
+containment floor norms (steps 3 and 25, the final one sealing into the
+vocab head); FSPLIT/FFUSE=real dataflow forks with a fork stack under kernel
+semantics; EVALT/EVALF=T- and F-gates; AFWD/AREV=the ROTAT ring shift
+forward/reverse (parameterless — the morphism IS the rotation, AREV the
+polarity flip); ENGAGR=the B-hold consuming the OPEN fork's arm;
+IFIX=three append-only residual records, never renormalized.
+
+The topology is the ob3ect's own, pinned by test against its topology
+report: pairs (4,7) and (8,12) (the R1 closure arm and the nested R2
+replicative triple), the unmatched fuse at 15 (the R1/R2 tier join,
+self-fuse on empty stack), the ONE open fork at 16 whose arm ENGAGR holds
+(open_fork_dag), the IFIX cascade of exactly 3, period 26. Nothing in the
+schedule is tunable.
+
+vita-train and vita-speak take an arch argument ("trunk" default,
+"lattice"); disjoint parameter spaces, same loss (ce + λ_gate·(μ∘δ=id) +
+λ_sic·Born-overlap). Lattice smoke run descends on CPU (checkpoint
+vita_lattice_smoke.safetensors). 20 tests green, including
+schedule_matches_the_ob3ect.

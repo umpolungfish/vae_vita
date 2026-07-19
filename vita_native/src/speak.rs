@@ -16,7 +16,20 @@ use candle_core::{DType, Device, Tensor};
 use candle_nn::{VarBuilder, VarMap};
 use std::process::Command;
 
-use vita_native::{alphabet, model};
+use vita_native::{alphabet, lattice, model};
+
+enum Net {
+    Trunk(model::VitaTrunk),
+    Lattice(lattice::VitaLattice),
+}
+impl Net {
+    fn forward(&self, ids: &Tensor) -> candle_core::Result<Tensor> {
+        match self {
+            Net::Trunk(m) => m.forward(ids),
+            Net::Lattice(m) => m.forward(ids),
+        }
+    }
+}
 
 const ASK: &str = concat!(env!("HOME"), "/imsgct/MoDoT/ask");
 const SEQ_CAP: usize = 96; // matches the training block: positions exist for seq_len+1
@@ -72,12 +85,16 @@ fn main() -> candle_core::Result<()> {
     let trunk_path = args.get(1).cloned().unwrap_or_else(|| "vita_trunk_10k.safetensors".into());
     let count: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(12);
     let temp: f32 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(0.8);
+    let arch = args.get(4).cloned().unwrap_or_else(|| "trunk".into());
 
     let device = Device::cuda_if_available(0).unwrap_or(Device::Cpu);
     let cfg = model::Config::default();
     let mut varmap = VarMap::new();
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
-    let trunk = model::VitaTrunk::new(cfg, SEQ_CAP + 1, vb)?;
+    let trunk = match arch.as_str() {
+        "lattice" => Net::Lattice(lattice::VitaLattice::new(cfg, SEQ_CAP + 1, vb)?),
+        _ => Net::Trunk(model::VitaTrunk::new(cfg, SEQ_CAP + 1, vb)?),
+    };
     varmap.load(&trunk_path)?;
     eprintln!("[vita-speak] trunk {trunk_path} loaded on {:?}", device);
 

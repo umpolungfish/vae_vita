@@ -49,13 +49,13 @@ impl Default for Config {
 }
 
 /// ROTAT as position: precomputed rotation phases for the ring.
-struct Rotat {
+pub(crate) struct Rotat {
     cos: Tensor, // (max_t, head_dim/2)
     sin: Tensor,
 }
 
 impl Rotat {
-    fn new(head_dim: usize, max_t: usize, dev: &Device) -> Result<Self> {
+    pub(crate) fn new(head_dim: usize, max_t: usize, dev: &Device) -> Result<Self> {
         let half = head_dim / 2;
         let theta: Vec<f32> = (0..half)
             .map(|i| 1f32 / 10000f32.powf(2.0 * i as f32 / head_dim as f32))
@@ -68,7 +68,7 @@ impl Rotat {
     }
 
     /// Apply the ring rotation to q or k: x is (b, heads, t, head_dim).
-    fn apply(&self, x: &Tensor) -> Result<Tensor> {
+    pub(crate) fn apply(&self, x: &Tensor) -> Result<Tensor> {
         let (_b, _h, t, d) = x.dims4()?;
         let half = d / 2;
         let cos = self.cos.narrow(0, 0, t)?.reshape((1, 1, t, half))?;
@@ -170,13 +170,13 @@ impl Layer {
 /// The S¹¹ core: project to 12-D, normalize to the unit hypersphere, lift
 /// back as a residual. The stream must pass through the sense organ's own
 /// geometry at the trunk's midpoint.
-struct Core {
+pub(crate) struct Core {
     down: Linear,
     up: Linear,
 }
 
 impl Core {
-    fn new(cfg: &Config, vb: VarBuilder) -> Result<Self> {
+    pub(crate) fn new(cfg: &Config, vb: VarBuilder) -> Result<Self> {
         Ok(Core {
             down: linear_no_bias(cfg.d_model, cfg.core_dim, vb.pp("down"))?,
             up: linear_no_bias(cfg.core_dim, cfg.d_model, vb.pp("up"))?,
@@ -185,7 +185,7 @@ impl Core {
 
     /// Returns the residual-lifted stream AND the S¹¹ points themselves, so
     /// the λ_sic pin can act on the core geometry directly.
-    fn forward(&self, x: &Tensor) -> Result<(Tensor, Tensor)> {
+    pub(crate) fn forward(&self, x: &Tensor) -> Result<(Tensor, Tensor)> {
         let z = self.down.forward(x)?; // (b, t, 12)
         let norm = z.sqr()?.sum_keepdim(D::Minus1)?.sqrt()?;
         let z = z.broadcast_div(&(norm + 1e-8)?)?; // onto S¹¹

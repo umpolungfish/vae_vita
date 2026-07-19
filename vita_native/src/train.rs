@@ -15,12 +15,36 @@
 //! (pinning the S¹¹ core to the d=12 SIC fiducial) is the next plank: it
 //! joins when pointed at the fiducial data itself, never hand-derived.
 //!
-//! Usage: vita-train <dataset.jsonl> [steps] [seq_len] [batch] [out.safetensors]
+//! Usage: vita-train <dataset.jsonl> [steps] [seq_len] [batch] [out.safetensors] [arch]
+//!   arch — "trunk" (default: 12 uniform layers) or "lattice" (the 26-step
+//!   protocol of the discerning ob3ect, built to spec in lattice.rs)
 
 use candle_core::{DType, Device, Tensor};
 use candle_nn::{loss, AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap};
 
-use vita_native::{alphabet, model, template};
+use vita_native::{alphabet, lattice, model, template};
+
+/// The two architectures behind one training loop: the uniform trunk and the
+/// spec-built 26-step lattice. Same interface, disjoint parameter spaces.
+enum Net {
+    Trunk(model::VitaTrunk),
+    Lattice(lattice::VitaLattice),
+}
+
+impl Net {
+    fn forward_with_core(&self, ids: &Tensor) -> candle_core::Result<(Tensor, Tensor)> {
+        match self {
+            Net::Trunk(m) => m.forward_with_core(ids),
+            Net::Lattice(m) => m.forward_with_core(ids),
+        }
+    }
+    fn gate_penalty(&self) -> candle_core::Result<Tensor> {
+        match self {
+            Net::Trunk(m) => m.gate_penalty(),
+            Net::Lattice(m) => m.gate_penalty(),
+        }
+    }
+}
 
 const LAMBDA_GATE: f64 = 0.1;
 // The λ_sic pin: core S¹¹ points driven to the Born constant 1/13 pairwise —
@@ -34,6 +58,7 @@ fn main() -> candle_core::Result<()> {
     let seq_len: usize = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(96);
     let batch: usize = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(4);
     let out_path = args.get(5).cloned().unwrap_or_else(|| "vita_trunk.safetensors".into());
+    let arch = args.get(6).cloned().unwrap_or_else(|| "trunk".into());
 
     let device = Device::cuda_if_available(0).unwrap_or(Device::Cpu);
     eprintln!("[vita-train] device: {:?}", device);
@@ -71,7 +96,13 @@ fn main() -> candle_core::Result<()> {
     let cfg = model::Config::default();
     let varmap = VarMap::new();
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);
-    let trunk = model::VitaTrunk::new(cfg, seq_len + 1, vb)?;
+    let trunk = match arch.as_str() {
+        "lattice" => {
+            eprintln!("[vita-train] arch: the 26-step protocol lattice (built to the ob3ect's spec)");
+            Net::Lattice(lattice::VitaLattice::new(cfg, seq_len + 1, vb)?)
+        }
+        _ => Net::Trunk(model::VitaTrunk::new(cfg, seq_len + 1, vb)?),
+    };
     let mut opt = AdamW::new(
         varmap.all_vars(),
         ParamsAdamW { lr: 3e-4, ..Default::default() },
