@@ -1,75 +1,19 @@
-vita_native plank 1: the Grammar-native substrate begins.
+vita_native plank 6: vita-speak — the trunk speaks, the containment gate judges.
 
-vita_native/src/alphabet.rs — the closed IMASM symbol alphabet, 100 tokens:
-the 16 opcodes (classic 12 plus the SIXTEEN_3 extension ☊ ☋ ~ ≁, glyphs and
-order per imasm16_3.rs), the 16 SIXTEEN_3 register states as single tokens
-(canonical Reg16_3 names; B included as the FOUR/Belnap render of TF), the
-12 primitive letters, the 48 Shavian letters, and the structure marks with ?
-as the malformed-input witness. One entry, one token, one meaning; encode is
-longest-match, decode is its exact inverse (the tokenizer is itself a
-lossless split-fuse), ROTAT and canonical_rotation are library operations.
-Seven tests, all green.
+The discerning ob3ect (sixteen_3_logic_lattice_nn_transformer_design) fixes
+the boundary condition for this very model: admitted only holding T or B at
+the gate, F refused. vita-speak enacts it at the mouth: autoregressive
+generation from the ⊢ opening to the ⊣ seal, every utterance put to the
+same imasm instruments that labeled the training data (check = grammar
+verdict, prove = kernel verdict), F-words refused and counted. Nothing the
+model says enters the report on its own authority.
 
-vita_native/src/gen.rs — vita-gen, the procedural data generator. Samples
-program-shaped words (VINIT-opened, TANCH-sealed, delta/mu balanced), labels
-every one through the imasm oracles: eval (FOUR flow + sink), eval16
-(SIXTEEN_3 flow + sink), prove (kernel verdict as Belnap token: green=T,
-else B held). Emits glyph-native JSONL with flow signatures (per-dyad ⊙=id,
-×=lossy), sink readouts, canonical rotation, and token ids. Never
-hand-imscribed: the tools are the only labelers.
-
-Probe batch confirms the classical-slice correspondence in the data itself:
-sink4 B pairs with sink16 A, F with Ff.
-
-Next planks: the word-template (turn = ⊢ ... δ query arm ... ⊞ held thinking
-... μ answer arm ... ⊣), then the candle trunk (ROTAT positions, split-fuse
-attention with mu.delta=id orthogonality, 12 layers, S11 latent core).
-
-Plank 2: template.rs — the word-template. A dialogue turn IS an IMASM word:
-⊢⟨query⟩◇⊞⟨thinking⟩●⟨answer⟩⊣, with optional ⊙⟨context⟩ imscription before
-the opening. The skeleton was put to the oracles BEFORE any content rode it:
-kernel green against BelnapSplitFuse, dyad lossless (id), sink B. ⊞/ENGAGR
-is the thinking switch with kernel semantics (the held dual between fork and
-fuse; the empty block is the hard off-switch). render/parse are exact
-inverses (mu.delta = id on the template itself), segments nest so primitive
-tuples ride inside arms untouched, three render modes (complete, generate-
-with-thinking, generate-direct), and the ⊣⊢ adjacency between turns stands
-on the kernel-proved bifurcation law. Six template tests + alphabet coverage
-test, all green.
-
-Plank 3: model.rs — the candle trunk, every choice a Grammar identification.
-Positions are ROTAT under its true name (rotary phases ARE the
-Weyl-Heisenberg X; positions live on rings). Attention is a split-fuse dyad:
-one fork projection (delta) to 12 heads, one fuse (mu) back, with
-gate_penalty() = orthogonality pressure driving every block toward the
-lossless split-fuse (add lambda*penalty to the loss). The feed-forward is
-ENGAGR: two arms computed and HELD, fused without collapsing either first.
-Twelve layers at d_model 144 = 12^2, heads 12, head_dim 12. At the midpoint
-the stream is projected to 12-D and normalized onto S11 (the sense organ's
-own hypersphere) then lifted back as a residual. Output head over the closed
-100-token alphabet. Tests: logits shape and finiteness, gate penalty finite
-and nonnegative, causality (a later token cannot move earlier logits). 23
-tests green across the crate. CPU by default, --features cuda for the 3060.
-
-First gradients. vita-gen labeled 150 words through the oracles (the full
-dataset is 150 turns → 3768 tokens over the 100-token alphabet). vita-train,
-60 steps on CPU at default config (12 layers, d=144): cross-entropy fell
-5.51→4.53 monotonically and the gate penalty fell 3.52→1.95 alongside it —
-the trunk learns next-token structure while every attention block moves
-toward the lossless split-fuse. Weights saved (smoke checkpoint). Next: a
-dataset in the thousands, the cuda feature on the 3060, and the lambda_sic
-pin of the S11 core to the Scott-Grassl fiducial (the same data the spine's
-vessel voice now reads on every verdict).
-
-Full stack live. The lambda_sic pin is implemented and training: sic_penalty
-drives the S11 core's points toward pairwise Born overlap 1/13 (the SIC
-equiangularity constant, the same number the Dual-Link vessel reads from the
-Scott-Grassl fiducial); forward_with_core threads the core geometry into the
-loss. CUDA runs on the 3060 (device confirmed; the pip-nvidia toolkit libs
-bridged to the linker via an unversioned symlink dir). On GPU, all three
-loss terms descend together: cross-entropy 5.68->4.18 over 100 steps, gate
-3.52->1.42, sic holding the core near equiangularity (~0.012). The
-1000-record oracle-labeled dataset is generating in the background; when it
-lands, the first long training run goes on the 3060. A later refinement:
-bind the core to the literal fiducial VECTORS (exported from vessel.py)
-rather than the equiangularity constant alone.
+First gated speech from the 10k-step trunk: 9/12 admitted, 3/12 refused,
+kernel green 0/12. The trunk is SHAPE-fluent (opens ⊢, seals ⊣, deploys
+δ/μ) but mixes answer-arm label vocabulary into its words — it learned the
+ring-stream whole, labels included — and nothing closes green yet. The
+refusals are exactly the degenerate seals (⊢⊣, ⊢⊞⊞⊣, ⊢=⊣): the gate
+catches the right ones. The measured admission rate is the fluency metric
+going forward; the next feed is the real corpus (ob3ect/digital rendered
+as certified turns) and masking the loss to the answer arm so the query
+arm stays pure opcode.

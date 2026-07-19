@@ -1,0 +1,1 @@
+/home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/vita-speak: /home/mrnob0dy666/imsgct/vae_vita/vita_native/src/alphabet.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/src/lib.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/src/model.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/src/speak.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/src/template.rs

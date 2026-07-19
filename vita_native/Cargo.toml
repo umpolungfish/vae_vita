@@ -23,3 +23,7 @@ path = "src/gen.rs"
 [[bin]]
 name = "vita-train"
 path = "src/train.rs"
+
+[[bin]]
+name = "vita-speak"
+path = "src/speak.rs"
