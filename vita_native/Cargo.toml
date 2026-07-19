@@ -19,3 +19,7 @@ cuda = ["candle-core/cuda", "candle-nn/cuda"]
 [[bin]]
 name = "vita-gen"
 path = "src/gen.rs"
+
+[[bin]]
+name = "vita-train"
+path = "src/train.rs"
