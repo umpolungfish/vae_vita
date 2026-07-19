@@ -25,9 +25,12 @@
 pub const VOCAB: &[&str] = &[
     // ── 0. opcodes (16) ─────────────────────────────────────────────────
     "⊢", "⊣", ">", "<", "=", "⊙", "◇", "●", "☊", "☋", "+", "×", "⊞", "~", "≁", "¬",
-    // ── 1. registers (16 SIXTEEN_3 states) + B (FOUR/Belnap render of TF) ─
-    "N", "A", "T", "F", "t", "f", "TF", "Tt", "Tf", "Ft", "Ff", "tf",
-    "TFt", "TFf", "Ttf", "Ftf", "B",
+    // ── 1. registers (16 SIXTEEN_3 states) + ⊤ (FOUR/Belnap render of TF) ─
+    // Glyph face per Reg16_3::glyph(): occupancy of {T,F,t,f} as quadrant
+    // ink (T ▘ F ▝ t ▖ f ▗; N ░ the unmarked field; A █ full). ⊤ is the
+    // Belnap top, the FOUR-collapse of TF — same ids as the old Latin face.
+    "░", "█", "▘", "▝", "▖", "▗", "▀", "▌", "▚", "▞", "▐", "▄",
+    "▛", "▜", "▙", "▟", "⊤",
     // ── 2. primitives (12; ⊙ appears once, in the opcode section) ───────
     "Ð", "Þ", "Ř", "Φ", "ƒ", "Ç", "Γ", "ɢ", "Ħ", "Σ", "Ω",
     // ── 3. shavian (48) ─────────────────────────────────────────────────
@@ -38,6 +41,41 @@ pub const VOCAB: &[&str] = &[
     // ── 4. structure ────────────────────────────────────────────────────
     "⟨", "⟩", "·", "⋈", "|", " ", "\n", "?",
 ];
+
+/// The kernel's spoken register names (Reg16_3::name / four_name), paired
+/// with their glyph face, in vocab id order. The oracles speak the Latin
+/// face; the model's universe holds only the glyph face.
+pub const REG_FACES: &[(&str, &str)] = &[
+    ("N", "░"), ("A", "█"), ("T", "▘"), ("F", "▝"), ("t", "▖"), ("f", "▗"),
+    ("TF", "▀"), ("Tt", "▌"), ("Tf", "▚"), ("Ft", "▞"), ("Ff", "▐"), ("tf", "▄"),
+    ("TFt", "▛"), ("TFf", "▜"), ("Ttf", "▙"), ("Ftf", "▟"), ("B", "⊤"),
+];
+
+/// Translate a kernel readout (oracle output: register names amid structure
+/// glyphs, e.g. "T·F·N·B") to the glyph face. Maximal runs of name letters
+/// are matched as whole names; a run that is no register name is left as-is
+/// and will surface as ? on encode — malformed carried as evidence.
+pub fn reg_face(text: &str) -> String {
+    let chars: Vec<char> = text.chars().collect();
+    let mut out = String::new();
+    let mut i = 0;
+    while i < chars.len() {
+        if "TFtfNAB".contains(chars[i]) {
+            let mut j = i;
+            while j < chars.len() && "TFtfNAB".contains(chars[j]) { j += 1; }
+            let run: String = chars[i..j].iter().collect();
+            match REG_FACES.iter().find(|(n, _)| *n == run) {
+                Some((_, g)) => out.push_str(g),
+                None => out.push_str(&run),
+            }
+            i = j;
+        } else {
+            out.push(chars[i]);
+            i += 1;
+        }
+    }
+    out
+}
 
 /// Id of the malformed-input marker.
 pub fn unknown_id() -> u32 {
@@ -137,12 +175,16 @@ mod tests {
     }
 
     #[test]
-    fn registers_longest_match() {
-        // "TFt" must be ONE token, not T·F·t.
-        assert_eq!(encode("TFt").len(), 1);
-        assert_eq!(decode(&encode("TFt")), "TFt");
-        // "Tf" one token; "A" and "N" one each.
-        assert_eq!(encode("Tf N A B").len(), 7);
+    fn registers_glyph_face() {
+        // Oracle Latin names translate to single glyph tokens.
+        assert_eq!(reg_face("TFt"), "▛");
+        assert_eq!(encode(&reg_face("TFt")).len(), 1);
+        assert_eq!(reg_face("T·F·N·B"), "▘·▝·░·⊤");
+        assert_eq!(encode(&reg_face("Tf N A B")).len(), 7);
+        // A run that is no register name is carried, and encodes as ?.
+        assert_eq!(reg_face("TtN"), "TtN");
+        // Bare Latin register names are no longer in the model's universe.
+        assert!(encode("TFt").contains(&unknown_id()));
     }
 
     #[test]

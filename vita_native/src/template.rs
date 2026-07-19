@@ -219,12 +219,12 @@ mod tests {
     #[test]
     fn alphabet_covers_template() {
         // Every rendered glyph is in the closed alphabet: encode∘decode = id.
-        use crate::alphabet::{decode, encode};
+        use crate::alphabet::{decode, encode, reg_face};
         let turns = vec![Turn {
             context: Some("Ð Þ".into()),
             query: "⟨𐑦𐑸⟩".into(),
             think: Some("⊙".into()),
-            answer: Some("Tf".into()),
+            answer: Some(reg_face("Tf")),
         }];
         let text = render(&turns, RenderMode::Complete);
         assert_eq!(decode(&encode(&text)), text);

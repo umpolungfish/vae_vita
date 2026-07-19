@@ -1,12 +1,19 @@
-vita-corpus: render the real organisms; vita-speak: kernel valence discipline as logit mask
+The certified-turn mouth, the register glyph face, and the regimen ob3ect's placement
 
-vita-corpus walks ob3ect/digital, takes each ob3ect's protocol word, and labels
-it through the same three instruments as the synthetic set — identical schema,
-oracle-labeled. First census: 879 records, 830 kernel-T / 49 B / 0 F. The real
-organisms are closure by default; the synthetic babble never was.
+speak.rs now speaks the spec's own skeleton (a dialogue turn IS an IMASM word):
+the trunk voices the query arm under the kernel's valence discipline, then
+pronounces its own mu-arm readout before the oracles are consulted. Two-column
+report: the oracle's verdict and whether the trunk knew what it said.
 
-vita-speak now samples under the fork stack: ● only over an open ◇, ⊣ only at
-depth 0, forced closure at the cap. Every utterance leaves the mouth
-δ/μ-balanced; kernel green now measures whether the arms carry work.
+Register states wear their glyph face: quadrant ink per Reg16_3::glyph() in
+the MoDoT kernel, translated from oracle Latin at the encode boundary by
+alphabet::reg_face(). Same ids, so existing checkpoints carry over unchanged.
 
-Weights ignored (*.safetensors); corpus jsonl committed as the measured output.
+train.rs implements the regimen ob3ect's determination (turn-internal
+placement, not proportion, not sequence): real records teach the whole turn,
+synthetic records teach only the mu arm, query spans masked from the loss.
+Measured at the mouth this holds fluency and failure-knowledge in one vessel;
+every self-pronounced B verdict to date has been oracle-confirmed.
+
+README gains the vita_native section describing the NOW of all of this.
+Mixed corpora gitignored: one-command derivable from the committed sets.

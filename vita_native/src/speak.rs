@@ -1,16 +1,25 @@
-//! vita-speak — the trunk speaks, and the containment gate judges.
+//! vita-speak — the trunk speaks a certified turn, and the gate judges.
 //!
 //! The discerning ob3ect (sixteen_3_logic_lattice_nn_transformer_design) fixes
 //! the boundary condition for this very model: an action is admitted only if
 //! it holds T or B at the gate, and F is refused. vita-speak is that gate made
-//! operational at the mouth: the trunk generates opcode words autoregressively
-//! from the ⊢ opening, and EVERY utterance is put to the imasm instruments —
-//! `check` (grammar verdict) and `prove` (kernel verdict) — exactly as the
-//! training labels were. Nothing the model says enters the report on its own
-//! authority; the oracles speak over it, and F-words are refused, counted,
-//! and shown refused.
+//! operational at the mouth — and the mouth speaks in the spec's own skeleton
+//! (template.rs: a dialogue turn IS an IMASM word):
 //!
-//! Usage: vita-speak <trunk.safetensors> [count] [temperature]
+//! ```text
+//! ⊢ ⟨query⟩ ◇ ⊞ ⟨⟩ ● ⟨flow·sink·kernel⟩ ⊣
+//! ```
+//!
+//! The trunk generates the query arm under the kernel's valence discipline;
+//! the empty-think skeleton is then rendered, and the trunk completes the
+//! answer arm — its OWN predicted readout, spoken in the register glyph face
+//! before the oracles are consulted. Every query word is put to the imasm
+//! instruments — `check` (grammar) and `prove` (kernel) — exactly as the
+//! training labels were, and the model's self-predicted kernel verdict is
+//! compared against the oracle's. Nothing the model says enters the report
+//! on its own authority; F-words are refused, counted, and shown refused.
+//!
+//! Usage: vita-speak <trunk.safetensors> [count] [temperature] [arch] [word_cap]
 
 use candle_core::{DType, Device, Tensor};
 use candle_nn::{VarBuilder, VarMap};
@@ -86,6 +95,9 @@ fn main() -> candle_core::Result<()> {
     let count: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(12);
     let temp: f32 = args.get(3).and_then(|s| s.parse().ok()).unwrap_or(0.8);
     let arch = args.get(4).cloned().unwrap_or_else(|| "trunk".into());
+    // Query-arm cap, in tokens. Default 34 — the longest real organism in the
+    // corpus; the mouth stays inside the length regime the trunk learned.
+    let word_cap: usize = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(34);
 
     let device = Device::cuda_if_available(0).unwrap_or(Device::Cpu);
     let cfg = model::Config::default();
@@ -98,63 +110,124 @@ fn main() -> candle_core::Result<()> {
     varmap.load(&trunk_path)?;
     eprintln!("[vita-speak] trunk {trunk_path} loaded on {:?}", device);
 
-    let open = alphabet::encode("⊢");
-    let seal = alphabet::encode("⊣");
-    let (open_id, seal_id) = (open[0], seal[0]);
-    let split_id = alphabet::encode("◇")[0];
-    let fuse_id = alphabet::encode("●")[0];
+    let id_of = |g: &str| alphabet::encode(g)[0];
+    let (open_id, seal_id) = (id_of("⊢"), id_of("⊣"));
+    let (split_id, fuse_id) = (id_of("◇"), id_of("●"));
+    let (lang_id, rang_id, dot_id) = (id_of("⟨"), id_of("⟩"), id_of("·"));
+    // The query arm speaks only opcodes — organism words are opcode words,
+    // and they carry their own ⊢…⊣ inside the ⟨⟩ (the corpus renders whole
+    // protocol words as queries). Opcodes-only is also what disambiguates
+    // the δ arm from the μ arm at ⊢⟨.
+    let query_legal: Vec<u32> = "⊢⊣><=⊙◇●☊☋+×⊞~≁¬".chars()
+        .map(|c| id_of(&c.to_string())).collect();
+    // The answer arm speaks the readout syntax the labels taught: flow marks
+    // ⊙/×, register glyph faces, the · separator, and the closing ⟩.
+    let mut answer_legal: Vec<u32> = alphabet::REG_FACES.iter().map(|(_, g)| id_of(g)).collect();
+    answer_legal.extend([id_of("⊙"), id_of("×"), dot_id, rang_id]);
+    // Forced skeleton between the arms: empty think, then the μ arm opens.
+    let mid_ids: Vec<u32> = alphabet::encode("◇⊞⟨⟩●⟨");
+    const ANS_CAP: usize = 16;
 
     let mut rng = Rng(0x51CA_FE12_D00D_2026);
-    let (mut admitted, mut refused, mut kernel_green) = (0usize, 0usize, 0usize);
+    let (mut admitted, mut refused, mut kernel_green, mut self_agree) = (0usize, 0usize, 0usize, 0usize);
 
-    println!("vita-speak — {count} utterances from the trunk, gated per the discerning ob3ect (T/B admitted, F refused):");
+    println!("vita-speak — {count} certified turns from the trunk, gated per the discerning ob3ect (T/B admitted, F refused):");
     for n in 0..count {
-        // ── generate one word: from ⊢, until ⊣ or the block cap, under the
-        // kernel's own valence discipline (the fork stack as a logit mask):
-        // ● is legal only over an open ◇; ⊣ is legal only at depth 0; when
-        // the cap looms, open forks are FORCED closed (only ● legal), so
-        // every utterance leaves the mouth δ/μ-balanced. The model chooses
-        // freely within the legal moves — the discipline is structural.
-        let mut ids: Vec<u32> = vec![open_id];
+        // ── the δ arm: ⊢⟨ primes the turn; the trunk speaks the query word
+        // under the kernel's valence discipline (fork stack as logit mask):
+        // ● only over an open ◇; ⟩ closes the arm only at depth 0; when the
+        // cap looms, open forks are FORCED closed then the arm is sealed, so
+        // every word leaves the mouth δ/μ-balanced within its arm.
+        let mut ids: Vec<u32> = vec![open_id, lang_id];
         let mut depth = 0usize;
+        let mut sealed = false; // the word spoke its own ⊣
         loop {
             let x = Tensor::from_vec(ids.clone(), (1, ids.len()), &device)?;
             let logits = trunk.forward(&x)?;
             let mut last: Vec<f32> = logits.narrow(1, ids.len() - 1, 1)?.flatten_all()?.to_vec1()?;
-            let closing_room = SEQ_CAP.saturating_sub(ids.len() + 1);
-            if depth >= closing_room {
-                // Out of room: only μ may speak until the forks are closed.
+            let qlen = ids.len() - 2;
+            if sealed || qlen + depth + 2 >= word_cap {
+                // The word is sealed, or out of room: close forks (●), seal
+                // if unsealed (⊣), then close the arm (⟩).
+                let force = if depth > 0 { fuse_id } else if !sealed { seal_id } else { rang_id };
                 for (i, l) in last.iter_mut().enumerate() {
-                    if i as u32 != fuse_id { *l = f32::NEG_INFINITY; }
+                    if i as u32 != force { *l = f32::NEG_INFINITY; }
                 }
             } else {
+                for (i, l) in last.iter_mut().enumerate() {
+                    let id = i as u32;
+                    if !query_legal.contains(&id) { *l = f32::NEG_INFINITY; }
+                }
+                if qlen == 0 {
+                    // Word-initial is ⊢ or ⊙ in the entire real population;
+                    // any other opening is off-manifold before it begins.
+                    let word_initial = [open_id, id_of("⊙")];
+                    for (i, l) in last.iter_mut().enumerate() {
+                        if !word_initial.contains(&(i as u32)) { *l = f32::NEG_INFINITY; }
+                    }
+                } else {
+                    last[open_id as usize] = f32::NEG_INFINITY;
+                }
                 if depth == 0 { last[fuse_id as usize] = f32::NEG_INFINITY; }
                 if depth > 0 { last[seal_id as usize] = f32::NEG_INFINITY; }
-                last[open_id as usize] = f32::NEG_INFINITY; // ⊢ speaks once
             }
             let id = sample(&last, temp, &mut rng);
             if id == split_id { depth += 1; }
             if id == fuse_id { depth = depth.saturating_sub(1); }
+            if id == seal_id { sealed = true; }
             ids.push(id);
-            if id == seal_id || ids.len() >= SEQ_CAP { break; }
+            if id == rang_id { break; }
         }
-        let word = alphabet::decode(&ids);
+        let word = alphabet::decode(&ids[2..ids.len() - 1]);
 
-        // ── the gate: the oracles speak over the utterance ───────────────
+        // ── the skeleton: empty ⊞ block, μ arm opens ─────────────────────
+        ids.extend_from_slice(&mid_ids);
+
+        // ── the answer arm: the trunk pronounces its own readout, register
+        // glyphs only, until it closes the arm (or the cap closes it).
+        loop {
+            let x = Tensor::from_vec(ids.clone(), (1, ids.len()), &device)?;
+            let logits = trunk.forward(&x)?;
+            let mut last: Vec<f32> = logits.narrow(1, ids.len() - 1, 1)?.flatten_all()?.to_vec1()?;
+            let alen = ids.len() - (2 + word.chars().count() + 1 + mid_ids.len());
+            for (i, l) in last.iter_mut().enumerate() {
+                if !answer_legal.contains(&(i as u32)) { *l = f32::NEG_INFINITY; }
+            }
+            let id = if alen + 1 >= ANS_CAP { rang_id } else { sample(&last, temp, &mut rng) };
+            ids.push(id);
+            if id == rang_id { break; }
+        }
+        ids.push(seal_id);
+        let turn = alphabet::decode(&ids);
+        // The model's self-predicted kernel verdict: the last register token
+        // in the answer arm, spoken back in the oracle's Latin face.
+        let self_kernel = ids[ids.len() - 3..ids.len() - 1]
+            .first()
+            .and_then(|id| {
+                let g = alphabet::decode(&[*id]);
+                alphabet::REG_FACES.iter().find(|(_, f)| *f == g).map(|(n, _)| *n)
+            })
+            .unwrap_or("?");
+
+        // ── the gate: the oracles speak over the query word ──────────────
         let check = check_verdict(&run_imasm("check", &word));
         let kernel = if check != 'F' { kernel_verdict(&run_imasm("prove", &word)) } else { 'B' };
         let admitted_here = check != 'F';
         if admitted_here { admitted += 1; } else { refused += 1; }
         if kernel == 'T' { kernel_green += 1; }
+        let agree = self_kernel == kernel.to_string();
+        if agree { self_agree += 1; }
 
         println!(
-            "  [{:>2}] {:<40} check {}  kernel {}  → {}",
-            n + 1, word, check, kernel,
+            "  [{:>2}] {:<52} check {}  kernel {}  self {}{}  → {}",
+            n + 1, turn, check, kernel, self_kernel,
+            if agree { " ✓" } else { "" },
             if admitted_here { "ADMITTED" } else { "REFUSED (F at the gate)" }
         );
     }
     println!(
-        "gate report: {admitted} admitted, {refused} refused; kernel green on {kernel_green}/{count}. \
+        "gate report: {admitted} admitted, {refused} refused; kernel green on {kernel_green}/{count}; \
+         self-readout agrees with the oracle on {self_agree}/{count}. \
          Admission rate is the trunk's measured grammar-fluency — the oracle's number, not the model's claim."
     );
     Ok(())

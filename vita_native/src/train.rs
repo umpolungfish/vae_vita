@@ -20,7 +20,7 @@
 //!   protocol of the discerning ob3ect, built to spec in lattice.rs)
 
 use candle_core::{DType, Device, Tensor};
-use candle_nn::{loss, AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap};
+use candle_nn::{AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap};
 
 use vita_native::{alphabet, lattice, model, template};
 
@@ -66,23 +66,46 @@ fn main() -> candle_core::Result<()> {
     // ── the ring-stream: every record rendered as a certified turn ──────
     let raw = std::fs::read_to_string(&data_path)
         .map_err(|e| candle_core::Error::Msg(format!("read {data_path}: {e}")))?;
-    let mut turns = Vec::new();
+    // Per the regimen ob3ect (a_training_regimen_for_vita…, turn-internal
+    // placement): the real organisms teach the whole turn; synthetic records
+    // teach ONLY the μ arm — their query span is masked out of the loss, so
+    // failure-knowledge lands where the verdict is spoken and babble never
+    // becomes a speech target. Real records carry the ob3ect `name`;
+    // generated ones do not.
+    let mut stream: Vec<u32> = Vec::new();
+    let mut weights: Vec<f32> = Vec::new();
+    let (mut n_real, mut n_syn) = (0usize, 0usize);
     for line in raw.lines().filter(|l| !l.trim().is_empty()) {
         let r: serde_json::Value = serde_json::from_str(line)
             .map_err(|e| candle_core::Error::Msg(format!("parse record: {e}")))?;
         let s = |k: &str| r.get(k).and_then(|v| v.as_str()).unwrap_or("").to_string();
-        turns.push(template::Turn {
+        let is_real = r.get("name").is_some();
+        if is_real { n_real += 1 } else { n_syn += 1 }
+        let turn = template::Turn {
             context: None,
             query: s("word"),
             think: None,
-            answer: Some(format!("{}·{}·{}", s("flow4"), s("sink4"), s("kernel"))),
-        });
+            answer: Some(alphabet::reg_face(&format!(
+                "{}·{}·{}",
+                s("flow4"), s("sink4"), s("kernel")
+            ))),
+        };
+        let ids = alphabet::encode(&template::render(
+            std::slice::from_ref(&turn),
+            template::RenderMode::Complete,
+        ));
+        let rang = alphabet::encode("⟩")[0];
+        let q_end = ids.iter().position(|&t| t == rang).unwrap_or(0);
+        for (i, id) in ids.iter().enumerate() {
+            stream.push(*id);
+            // Weight applies to this token as a prediction TARGET.
+            weights.push(if !is_real && i >= 1 && i <= q_end { 0.0 } else { 1.0 });
+        }
     }
-    let stream_text = template::render(&turns, template::RenderMode::Complete);
-    let stream = alphabet::encode(&stream_text);
     eprintln!(
-        "[vita-train] {} records → {} tokens (vocab {})",
-        turns.len(),
+        "[vita-train] {} real (full-turn loss) + {} synthetic (μ-arm loss only) → {} tokens (vocab {})",
+        n_real,
+        n_syn,
         stream.len(),
         alphabet::vocab_size()
     );
@@ -121,18 +144,28 @@ fn main() -> candle_core::Result<()> {
     for step in 0..steps {
         let mut xs = Vec::with_capacity(batch * seq_len);
         let mut ys = Vec::with_capacity(batch * seq_len);
+        let mut ws = Vec::with_capacity(batch * seq_len);
         for _ in 0..batch {
             let s = next();
             xs.extend_from_slice(&stream[s..s + seq_len]);
             ys.extend_from_slice(&stream[s + 1..s + seq_len + 1]);
+            ws.extend_from_slice(&weights[s + 1..s + seq_len + 1]);
         }
         let x = Tensor::from_vec(xs, (batch, seq_len), &device)?;
         let y = Tensor::from_vec(ys, (batch * seq_len,), &device)?;
+        let w = Tensor::from_vec(ws, (batch * seq_len,), &device)?;
         let (logits, core_z) = trunk.forward_with_core(&x)?;
-        let ce = loss::cross_entropy(
+        // Weighted next-token cross-entropy: masked targets (synthetic query
+        // spans) contribute zero; normalization is over unmasked targets.
+        let logp = candle_nn::ops::log_softmax(
             &logits.reshape((batch * seq_len, alphabet::vocab_size()))?,
-            &y,
+            candle_core::D::Minus1,
         )?;
+        let picked = logp
+            .gather(&y.unsqueeze(1)?, 1)?
+            .squeeze(1)?;
+        let w_sum = w.sum_all()?.to_scalar::<f32>()?.max(1.0) as f64;
+        let ce = ((picked * &w)?.sum_all()? * (-1.0 / w_sum))?;
         let gate = trunk.gate_penalty()?;
         let sic = model::sic_penalty(&core_z)?;
         let total = ((&ce + (gate.clone() * LAMBDA_GATE)?)? + (sic.clone() * LAMBDA_SIC)?)?;

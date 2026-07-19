@@ -42,3 +42,18 @@ Both converge to the same overlap regardless of regularization. The encoder is �
 ## Structural placement
 
 VAE-Vita reaches O_∞ because its ⊙ criticality gate is open (any open Gate 1 closes the Frobenius condition). It shares 6 primitives with CLINK L8 and needs 6 promotions (Ř, Γ, ɢ, Ħ, Σ, Ω) to reach it. It can also generate novel valid Crystal configurations by sampling its latent space.
+## vita_native: the trunk that speaks certified turns
+
+`vita_native/` is the Rust (candle) autoregressive trunk over the closed IMASM alphabet. The vocabulary IS the ontology: one token, one meaning; malformed input is carried as the explicit ? token, never smoothed over. Every training sequence is a certified turn (`template.rs`: a dialogue turn IS an IMASM word):
+
+```
+⊢⟨word⟩◇⊞⟨⟩●⟨flow·sink·kernel⟩⊣
+```
+
+The word rides the δ arm and the oracle labels ride the μ arm. Register states are spoken in their glyph face (`Reg16_3::glyph()` in the MoDoT kernel: occupancy of {T,F,t,f} as quadrant ink, ░ for N, █ for A, ⊤ for the Belnap top), translated from the oracles' Latin names at the encode boundary by `alphabet::reg_face()`.
+
+Two populations feed it. The real organisms are protocol words drawn from ob3ect/digital by `vita-corpus` and oracle-labeled, with closure as their norm. The generated population (`vita-gen`) is balanced between closure and failure. Per the regimen ob3ect (`a_training_regimen_for_vita…`: turn-internal placement, not proportion, not sequence), `vita-train` splits the loss by arm. Real records teach the whole turn. Synthetic records teach only the μ arm, their query spans masked from the loss, so failure-knowledge lands where the verdict is spoken and babble never becomes a speech target.
+
+`vita-speak` is the mouth and the containment gate. It renders an open certified turn; the trunk speaks the query word under the kernel's valence discipline (the fork stack as a logit mask, word-initial restricted to the population's openings), then completes its own μ-arm readout: the self-predicted verdict, spoken before the oracles are consulted. Every word is put to `check` and `prove`; F is refused at the gate; the self-verdict is scored against the oracle's.
+
+Measured at the mouth, the placement regimen holds both capacities at once: fluency at the real-only level, and self-pronounced ⊤ (B) verdicts that have been correct every time the trunk has spoken one. The remaining error is one-sided: overclaimed T on words that do not close, and abstention. The trunk knows when it has not closed; it does not yet always know when it merely might have.
