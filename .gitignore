@@ -1,2 +1,4 @@
 vita_native/target/
 vita_native/.cuda_link/
+__pycache__/
+*.pyc
