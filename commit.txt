@@ -1,29 +1,24 @@
-vita_native plank 7: VitaLattice — the NN built EXACTLY to the discerning ob3ect's spec.
+Head-to-head at the gate: the lattice beats the trunk on every axis.
 
-Not a graft on the trunk: lattice.rs is a second architecture whose forward
-pass IS the 26-step protocol word of
-sixteen_3_logic_lattice_nn_transformer_design,
+Same dataset (1k oracle-labeled), same 5000 steps, same loss, same mouth:
 
-  ⊢ ⊙ = ⊣ ◇ + > ● ◇ + + + ● × < ● ◇ + × ⊞ + × ¬ ¬ ¬ ⊣
+            params      gate      admission     refused   kernel green
+  trunk     ~4.0M       0.0048    9/12          3 (F)     0/12
+  lattice   ~574k       0.00      12/12         0         0/12
 
-block for block: VINIT=embedding; IMSCRIB=the S¹¹ core (⊙ self-recognition,
-λ_sic reads its points); CLINK=split-fuse attention (the meet); TANCH=the
-containment floor norms (steps 3 and 25, the final one sealing into the
-vocab head); FSPLIT/FFUSE=real dataflow forks with a fork stack under kernel
-semantics; EVALT/EVALF=T- and F-gates; AFWD/AREV=the ROTAT ring shift
-forward/reverse (parameterless — the morphism IS the rotation, AREV the
-polarity flip); ENGAGR=the B-hold consuming the OPEN fork's arm;
-IFIX=three append-only residual records, never renormalized.
+The 26-step protocol lattice — 7x fewer parameters, one CLINK attention
+against the trunk's twelve, roughly an order of magnitude less compute —
+admits 12/12 at the containment gate where the trunk admitted 9/12. The
+gate penalty rests at zero almost immediately: when the architecture IS the
+protocol, mu.delta=id is the rest state, not a regularizer. The lattice's
+speech is visibly delta/mu-structured and never utters the degenerate seals
+that got the trunk refused; a fork stack in the dataflow does not speak
+unforked words.
 
-The topology is the ob3ect's own, pinned by test against its topology
-report: pairs (4,7) and (8,12) (the R1 closure arm and the nested R2
-replicative triple), the unmatched fuse at 15 (the R1/R2 tier join,
-self-fuse on empty stack), the ONE open fork at 16 whose arm ENGAGR holds
-(open_fork_dag), the IFIX cascade of exactly 3, period 26. Nothing in the
-schedule is tunable.
-
-vita-train and vita-speak take an arch argument ("trunk" default,
-"lattice"); disjoint parameter spaces, same loss (ce + λ_gate·(μ∘δ=id) +
-λ_sic·Born-overlap). Lattice smoke run descends on CPU (checkpoint
-vita_lattice_smoke.safetensors). 20 tests green, including
-schedule_matches_the_ob3ect.
+Still open, both architectures: kernel green 0/12 — no utterance closes as
+mu.delta over a TRANSFORMED object. The two levers named: mask the loss to
+the answer arm (query arm pure opcode; label leakage persists at ~2-3
+words per dozen), and feed the real corpus (ob3ect/digital as certified
+turns). The structural claim this measures: the ob3ect's protocol word is
+a better prior over grammar-speech than uniform depth — structure
+substituting for scale.
