@@ -1,0 +1,14 @@
+/home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/deps/serde-12fe0566ea2516a8.d: /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/build/serde-53793a188eafa037/out/private.rs
+
+/home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/deps/libserde-12fe0566ea2516a8.rlib: /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/build/serde-53793a188eafa037/out/private.rs
+
+/home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/deps/libserde-12fe0566ea2516a8.rmeta: /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/build/serde-53793a188eafa037/out/private.rs
+
+/home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs:
+/home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs:
+/home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs:
+/home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs:
+/home/mrnob0dy666/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs:
+/home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/build/serde-53793a188eafa037/out/private.rs:
+
+# env-dep:OUT_DIR=/home/mrnob0dy666/imsgct/vae_vita/vita_native/target/release/build/serde-53793a188eafa037/out
