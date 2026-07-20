@@ -1690,6 +1690,7 @@ dependencies = [
  "candle-core",
  "candle-nn",
  "imasm_core",
+ "libm",
  "serde",
  "serde_json",
 ]

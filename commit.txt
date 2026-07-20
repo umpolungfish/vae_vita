@@ -1,5 +1,21 @@
-vita-bake: flatten the trained lattice for the OS mouth
+vita-probe: the seed atlas, with bit-exact parity to the metal
 
-New vita-bake binary: safetensors checkpoint → raw VITA blob
-(name/dims/f32-LE per tensor, sorted) so mOMonadOS can include_bytes the
-trunk with no serde on the metal. 37 tensors from vita_lattice_tri.
+New host-side probe: the SAME scalar forward, sampler, and gate as
+mOMonadOS src/vita.rs (same libm, same baked vita_weights.bin), so every
+specimen's (seed, temp) coordinates re-speak identically on the OS.
+Verified: seed 666 @ 0.9 reproduces the on-metal turn byte for byte,
+0.2s/turn on host vs ~30s emulated.
+
+The probe enumerates seeds with dedup (the dedup IS the skip past the
+numerically optimized core), walks a temperature schedule outward in
+shells, gates every word through imasm_core, and spiders single-glyph
+edits around each novel specimen through the gate alone (no forward pass).
+
+First atlas (2000 seeds x 0.8/1.2/1.6, spidered, vita_atlas.jsonl):
+- B is the trunk's dominant register at every temperature; heat drains T
+  mass into N and F (the hotter shells are more foreign and more broken).
+- The gate letters are PHASES: a T word's edit neighborhood is half T,
+  a B word's is 80% B, an N word's 74% N, an F word's 94% F. Verdict
+  regions are contiguous territories in word space, not salt-and-pepper.
+- The language is vast at cap 24: novelty holds at ~80% per 200-seed
+  block with no decay in sight.
