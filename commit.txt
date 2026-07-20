@@ -1,21 +1,11 @@
-vita-probe: the seed atlas, with bit-exact parity to the metal
+README: the trunk's full present tense
 
-New host-side probe: the SAME scalar forward, sampler, and gate as
-mOMonadOS src/vita.rs (same libm, same baked vita_weights.bin), so every
-specimen's (seed, temp) coordinates re-speak identically on the OS.
-Verified: seed 666 @ 0.9 reproduces the on-metal turn byte for byte,
-0.2s/turn on host vs ~30s emulated.
-
-The probe enumerates seeds with dedup (the dedup IS the skip past the
-numerically optimized core), walks a temperature schedule outward in
-shells, gates every word through imasm_core, and spiders single-glyph
-edits around each novel specimen through the gate alone (no forward pass).
-
-First atlas (2000 seeds x 0.8/1.2/1.6, spidered, vita_atlas.jsonl):
-- B is the trunk's dominant register at every temperature; heat drains T
-  mass into N and F (the hotter shells are more foreign and more broken).
-- The gate letters are PHASES: a T word's edit neighborhood is half T,
-  a B word's is 80% B, an N word's 74% N, an F word's 94% F. Verdict
-  regions are contiguous territories in word space, not salt-and-pepper.
-- The language is vast at cap 24: novelty holds at ~80% per 200-seed
-  block with no decay in sight.
+Brought the README up to what vae_vita now IS: the mouth on the metal
+(vita-bake blob, mOMonadOS no_std forward pass, kernel gate, `vita` at
+the OS prompt), the determinism section (seed is the only entropy;
+(seed, temp) -> turn is a pure function; minimal seed ~ 1/P(word), the
+trunk as decompressor), vita-probe and the seed atlas with the
+first-atlas findings (B-dominant mass, gate letters as contiguous
+phases in edit space, heavy tail), and a Testing section whose every
+command was run before it was written. License badge corrected to
+Unlicense.
