@@ -161,7 +161,7 @@ fn main() -> candle_core::Result<()> {
         .map(|c| id_of(&c.to_string())).collect();
     // The answer arm speaks the readout syntax the labels taught: flow marks
     // ⊙/×, register glyph faces, the · separator, and the closing ⟩.
-    let mut answer_legal: Vec<u32> = alphabet::REG_FACES.iter().map(|(_, g)| id_of(g)).collect();
+    let mut answer_legal: Vec<u32> = alphabet::reg_faces().iter().map(|(_, g)| id_of(g)).collect();
     answer_legal.extend([id_of("⊙"), id_of("×"), dot_id, rang_id]);
     // Forced skeleton between the arms: empty think, then the μ arm opens.
     let mid_ids: Vec<u32> = alphabet::encode("◇⊞⟨⟩●⟨");
@@ -248,7 +248,7 @@ fn main() -> candle_core::Result<()> {
         let self_kernel = ids[ids.len() - 3..ids.len() - 1]
             .first()
             .map(|id| alphabet::decode(&[*id]))
-            .filter(|g| alphabet::REG_FACES.iter().any(|(_, f)| f == g))
+            .filter(|g| alphabet::reg_faces().iter().any(|(_, f)| f == g))
             .unwrap_or_else(|| "?".into());
 
         // ── the gate: the oracles speak over the query word ──────────────

@@ -816,6 +816,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
+name = "imasm_core"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
 name = "indexmap"
 version = "2.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1682,6 +1689,7 @@ version = "0.1.0"
 dependencies = [
  "candle-core",
  "candle-nn",
+ "imasm_core",
  "serde",
  "serde_json",
 ]

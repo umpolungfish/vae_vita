@@ -20,39 +20,68 @@
 //!   3. shavian    — the 48 Shavian letters (levels within a primitive scale).
 //!   4. structure  — ⟨ ⟩ · ⋈ | space newline, and ? (malformed marker).
 
-/// The vocabulary, in id order. Multi-char entries are single tokens
-/// (register names like "Tf"); encoding is longest-match.
-pub const VOCAB: &[&str] = &[
-    // ── 0. opcodes (16) ─────────────────────────────────────────────────
-    // ∈/∋ are the tri-dyad per the unified guide; ∈/∋ were a drifted face.
-    "⊢", "⊣", ">", "<", "=", "⊙", "◇", "●", "∈", "∋", "+", "×", "⊞", "~", "≁", "¬",
-    // ── 1. registers (16 SIXTEEN_3 states) + one retired slot ───────────
-    // Glyph face per Reg16_3::glyph(): occupancy of {T,F,t,f} as quadrant
-    // ink (T ▘ F ▝ t ▖ f ▗; N ░ the unmarked field; A █ full). B of FOUR
-    // IS the state {T,F} and wears ▀ — there is no separate verdict
-    // alphabet and no Latin anywhere. The ⊤ slot is retired (it was a
-    // confusion artifact); the id is kept because ids never reorder.
-    "░", "█", "▘", "▝", "▖", "▗", "▀", "▌", "▚", "▞", "▐", "▄",
-    "▛", "▜", "▙", "▟", "⊤",
-    // ── 2. primitives (12; ⊙ appears once, in the opcode section) ───────
-    "Ð", "Þ", "Ř", "Φ", "ƒ", "Ç", "Γ", "ɢ", "Ħ", "Σ", "Ω",
-    // ── 3. shavian (48) ─────────────────────────────────────────────────
-    "𐑐", "𐑑", "𐑒", "𐑓", "𐑔", "𐑕", "𐑖", "𐑗", "𐑘", "𐑙", "𐑚", "𐑛",
-    "𐑜", "𐑝", "𐑞", "𐑟", "𐑠", "𐑡", "𐑢", "𐑣", "𐑤", "𐑥", "𐑦", "𐑧",
-    "𐑨", "𐑩", "𐑪", "𐑫", "𐑬", "𐑭", "𐑮", "𐑯", "𐑰", "𐑱", "𐑲", "𐑳",
-    "𐑴", "𐑵", "𐑶", "𐑷", "𐑸", "𐑹", "𐑺", "𐑻", "𐑼", "𐑽", "𐑾", "𐑿",
-    // ── 4. structure ────────────────────────────────────────────────────
-    "⟨", "⟩", "·", "⋈", "|", " ", "\n", "?",
-];
+use std::sync::OnceLock;
 
-/// The kernel's spoken register names (Reg16_3::name / four_name), paired
-/// with their glyph face, in vocab id order. The oracles speak the Latin
-/// face; the model's universe holds only the glyph face.
-pub const REG_FACES: &[(&str, &str)] = &[
-    ("N", "░"), ("A", "█"), ("T", "▘"), ("F", "▝"), ("t", "▖"), ("f", "▗"),
-    ("TF", "▀"), ("Tt", "▌"), ("Tf", "▚"), ("Ft", "▞"), ("Ff", "▐"), ("tf", "▄"),
-    ("TFt", "▛"), ("TFf", "▜"), ("Ttf", "▙"), ("Ftf", "▟"), ("B", "▀"),
-];
+use imasm_core::imasm16_3::{Reg16_3, Token16_3, ALL_TOKENS};
+
+/// The vocabulary, in id order — DERIVED from imasm_core, never transcribed.
+/// The opcode and register sections are the kernel's own glyph faces read at
+/// startup; a face correction in the kernel propagates by recompilation and
+/// a hand-copy going stale is no longer possible. Ids are stable: the
+/// derivation order is fixed (extension appends, never reorders).
+pub fn vocab() -> &'static Vec<String> {
+    static V: OnceLock<Vec<String>> = OnceLock::new();
+    V.get_or_init(|| {
+        let mut v: Vec<String> = Vec::new();
+        // ── 0. opcodes (16): imasm16_3::ALL_TOKENS order, with the classic
+        //       dyad ◇/● placed beside their 3-way siblings ∈/∋.
+        for t in ALL_TOKENS {
+            if t == Token16_3::Fsplit3 {
+                // The classic dyad sits together, before its tri siblings:
+                // … ⊙ ◇ ● ∈ ∋ + … (ids 6,7,8,9 — the historical order).
+                v.push(imasm_core::classic::Token::Fsplit.code().to_string());
+                v.push(imasm_core::classic::Token::Ffuse.code().to_string());
+            }
+            v.push(t.glyph().to_string());
+        }
+        // ── 1. registers: the 16 SIXTEEN_3 states in canonical order, glyph
+        //       face per Reg16_3::glyph(), plus the retired ⊤ slot (kept
+        //       because ids never reorder; never emitted, never a face).
+        for s in imasm_core::state_order() {
+            v.push(s.glyph().to_string());
+        }
+        v.push("⊤".to_string());
+        // ── 2. primitives (12; ⊙ appears once, in the opcode section) ────
+        for p in ["Ð", "Þ", "Ř", "Φ", "ƒ", "Ç", "Γ", "ɢ", "Ħ", "Σ", "Ω"] {
+            v.push(p.to_string());
+        }
+        // ── 3. shavian (48) ──────────────────────────────────────────────
+        for c in 0x10450..=0x1047F_u32 {
+            v.push(char::from_u32(c).expect("shavian block").to_string());
+        }
+        // ── 4. structure ─────────────────────────────────────────────────
+        for s in ["⟨", "⟩", "·", "⋈", "|", " ", "\n", "?"] {
+            v.push(s.to_string());
+        }
+        v
+    })
+}
+
+/// The kernel's spoken register names (Reg16_3::name), paired with their
+/// glyph face — derived, in vocab id order, plus the FOUR-collapse verdict
+/// letters (B wears TF's ▀ because B of FOUR IS the state {T,F}).
+pub fn reg_faces() -> &'static Vec<(String, String)> {
+    static F: OnceLock<Vec<(String, String)>> = OnceLock::new();
+    F.get_or_init(|| {
+        let mut f: Vec<(String, String)> = imasm_core::state_order()
+            .iter()
+            .map(|s| (s.name(), s.glyph().to_string()))
+            .collect();
+        let b = Reg16_3 { big_t: true, big_f: true, small_t: false, small_f: false };
+        f.push(("B".to_string(), b.glyph().to_string()));
+        f
+    })
+}
 
 /// Translate a kernel readout (oracle output: register names amid structure
 /// glyphs, e.g. "T·F·N·B") to the glyph face. Maximal runs of name letters
@@ -67,7 +96,7 @@ pub fn reg_face(text: &str) -> String {
             let mut j = i;
             while j < chars.len() && "TFtfNAB".contains(chars[j]) { j += 1; }
             let run: String = chars[i..j].iter().collect();
-            match REG_FACES.iter().find(|(n, _)| *n == run) {
+            match reg_faces().iter().find(|(n, _)| *n == run) {
                 Some((_, g)) => out.push_str(g),
                 None => out.push_str(&run),
             }
@@ -82,11 +111,11 @@ pub fn reg_face(text: &str) -> String {
 
 /// Id of the malformed-input marker.
 pub fn unknown_id() -> u32 {
-    (VOCAB.len() - 1) as u32
+    (vocab().len() - 1) as u32
 }
 
 pub fn vocab_size() -> usize {
-    VOCAB.len()
+    vocab().len()
 }
 
 /// Encode text to token ids by longest match at each position. A char that
@@ -98,7 +127,7 @@ pub fn encode(text: &str) -> Vec<u32> {
     let mut i = 0;
     while i < chars.len() {
         let mut best: Option<(usize, u32)> = None; // (chars consumed, id)
-        for (id, entry) in VOCAB.iter().enumerate() {
+        for (id, entry) in vocab().iter().enumerate() {
             let e: Vec<char> = entry.chars().collect();
             if e.len() <= chars.len() - i && chars[i..i + e.len()] == e[..] {
                 if best.map_or(true, |(len, _)| e.len() > len) {
@@ -124,7 +153,7 @@ pub fn encode(text: &str) -> Vec<u32> {
 /// alphabet covers (μ∘δ = id: the tokenizer is itself a lossless split-fuse).
 pub fn decode(ids: &[u32]) -> String {
     ids.iter()
-        .map(|&id| VOCAB.get(id as usize).copied().unwrap_or("?"))
+        .map(|&id| vocab().get(id as usize).map(|s| s.as_str()).unwrap_or("?"))
         .collect()
 }
 
@@ -160,8 +189,8 @@ mod tests {
     #[test]
     fn no_duplicate_entries() {
         let mut seen = std::collections::HashSet::new();
-        for e in VOCAB {
-            assert!(seen.insert(*e), "duplicate vocab entry: {e}");
+        for e in vocab() {
+            assert!(seen.insert(e.clone()), "duplicate vocab entry: {e}");
         }
     }
 
