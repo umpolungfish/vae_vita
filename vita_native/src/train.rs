@@ -67,27 +67,32 @@ fn main() -> candle_core::Result<()> {
     let raw = std::fs::read_to_string(&data_path)
         .map_err(|e| candle_core::Error::Msg(format!("read {data_path}: {e}")))?;
     // Per the regimen ob3ect (a_training_regimen_for_vita…, turn-internal
-    // placement): the real organisms teach the whole turn; synthetic records
-    // teach ONLY the μ arm — their query span is masked out of the loss, so
-    // failure-knowledge lands where the verdict is spoken and babble never
-    // becomes a speech target. Real records carry the ob3ect `name`;
-    // generated ones do not.
+    // placement): only closure teaches speech. A record whose kernel verdict
+    // is T teaches the whole turn; every other record teaches ONLY the μ arm
+    // — its query span is masked out of the loss, so failure-knowledge lands
+    // where the verdict is spoken and non-closing words never become speech
+    // targets. Verdict placement subsumes source placement: it applies
+    // uniformly to the real organisms, the synthetic set, and the mouth's
+    // own harvested utterances.
     let mut stream: Vec<u32> = Vec::new();
     let mut weights: Vec<f32> = Vec::new();
-    let (mut n_real, mut n_syn) = (0usize, 0usize);
+    let (mut n_closed, mut n_open) = (0usize, 0usize);
     for line in raw.lines().filter(|l| !l.trim().is_empty()) {
         let r: serde_json::Value = serde_json::from_str(line)
             .map_err(|e| candle_core::Error::Msg(format!("parse record: {e}")))?;
         let s = |k: &str| r.get(k).and_then(|v| v.as_str()).unwrap_or("").to_string();
-        let is_real = r.get("name").is_some();
-        if is_real { n_real += 1 } else { n_syn += 1 }
+        let is_closed = s("kernel") == "T";
+        if is_closed { n_closed += 1 } else { n_open += 1 }
         let turn = template::Turn {
             context: None,
             query: s("word"),
             think: None,
+            // The μ arm speaks the full SIXTEEN_3 readout — the whole
+            // trilattice carrier, not its classical shadow — with every
+            // value and the verdict in glyph ink (no Latin anywhere).
             answer: Some(alphabet::reg_face(&format!(
                 "{}·{}·{}",
-                s("flow4"), s("sink4"), s("kernel")
+                s("flow16"), s("sink16"), s("kernel")
             ))),
         };
         let ids = alphabet::encode(&template::render(
@@ -99,13 +104,13 @@ fn main() -> candle_core::Result<()> {
         for (i, id) in ids.iter().enumerate() {
             stream.push(*id);
             // Weight applies to this token as a prediction TARGET.
-            weights.push(if !is_real && i >= 1 && i <= q_end { 0.0 } else { 1.0 });
+            weights.push(if !is_closed && i >= 1 && i <= q_end { 0.0 } else { 1.0 });
         }
     }
     eprintln!(
-        "[vita-train] {} real (full-turn loss) + {} synthetic (μ-arm loss only) → {} tokens (vocab {})",
-        n_real,
-        n_syn,
+        "[vita-train] {} kernel-T (full-turn loss) + {} non-T (μ-arm loss only) → {} tokens (vocab {})",
+        n_closed,
+        n_open,
         stream.len(),
         alphabet::vocab_size()
     );

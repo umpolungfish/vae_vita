@@ -19,7 +19,11 @@
 //! compared against the oracle's. Nothing the model says enters the report
 //! on its own authority; F-words are refused, counted, and shown refused.
 //!
-//! Usage: vita-speak <trunk.safetensors> [count] [temperature] [arch] [word_cap]
+//! Usage: vita-speak <trunk.safetensors> [count] [temperature] [arch] [word_cap] [harvest.jsonl]
+//!
+//! With a harvest path, every utterance is appended as a full corpus-schema
+//! record (oracle-labeled, `source: mouth`) — the autopoietic winding: the
+//! trunk's own words, its own failures included, become the next diet.
 
 use candle_core::{DType, Device, Tensor};
 use candle_nn::{VarBuilder, VarMap};
@@ -41,6 +45,37 @@ impl Net {
 }
 
 const ASK: &str = concat!(env!("HOME"), "/imsgct/MoDoT/ask");
+
+const OPS: [(&str, char); 12] = [
+    ("VINIT", '⊢'), ("TANCH", '⊣'), ("AFWD", '>'), ("AREV", '<'),
+    ("CLINK", '='), ("IMSCRIB", '⊙'), ("FSPLIT", '◇'), ("FFUSE", '●'),
+    ("EVALT", '+'), ("EVALF", '×'), ("ENGAGR", '⊞'), ("IFIX", '¬'),
+];
+
+/// The oracles' name-list calling convention (as vita-gen and vita-corpus
+/// use for eval/eval16/prove labeling).
+fn run_imasm_names(sub: &str, names: &[String]) -> String {
+    let mut args = vec!["--imasm".to_string(), sub.to_string()];
+    args.extend(names.iter().cloned());
+    match Command::new(ASK).args(&args).output() {
+        Ok(o) => String::from_utf8_lossy(&o.stdout).to_string(),
+        Err(e) => format!("[oracle unreachable: {e}]"),
+    }
+}
+
+fn flow_signature(eval_out: &str) -> String {
+    eval_out.lines()
+        .filter(|l| l.contains("μ∘δ on values"))
+        .map(|l| if l.contains("— id") { '⊙' } else { '×' })
+        .collect()
+}
+
+fn sink_readout(eval_out: &str) -> String {
+    eval_out.lines()
+        .find(|l| l.contains("readout at sink"))
+        .and_then(|l| l.rsplit_once('(').map(|(_, r)| r.trim_end_matches(')').trim().to_string()))
+        .unwrap_or_default()
+}
 const SEQ_CAP: usize = 96; // matches the training block: positions exist for seq_len+1
 
 fn run_imasm(sub: &str, word_glyphs: &str) -> String {
@@ -98,6 +133,10 @@ fn main() -> candle_core::Result<()> {
     // Query-arm cap, in tokens. Default 34 — the longest real organism in the
     // corpus; the mouth stays inside the length regime the trunk learned.
     let word_cap: usize = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(34);
+    // Optional harvest path: every utterance appended as a full corpus-schema
+    // record, oracle-labeled — the mouth's own words become diet (the
+    // autopoietic winding: speak → harvest → retrain → speak).
+    let harvest = args.get(6).cloned();
 
     let device = Device::cuda_if_available(0).unwrap_or(Device::Cpu);
     let cfg = model::Config::default();
@@ -118,7 +157,7 @@ fn main() -> candle_core::Result<()> {
     // and they carry their own ⊢…⊣ inside the ⟨⟩ (the corpus renders whole
     // protocol words as queries). Opcodes-only is also what disambiguates
     // the δ arm from the μ arm at ⊢⟨.
-    let query_legal: Vec<u32> = "⊢⊣><=⊙◇●☊☋+×⊞~≁¬".chars()
+    let query_legal: Vec<u32> = "⊢⊣><=⊙◇●∈∋+×⊞~≁¬".chars()
         .map(|c| id_of(&c.to_string())).collect();
     // The answer arm speaks the readout syntax the labels taught: flow marks
     // ⊙/×, register glyph faces, the · separator, and the closing ⟩.
@@ -127,6 +166,11 @@ fn main() -> candle_core::Result<()> {
     // Forced skeleton between the arms: empty think, then the μ arm opens.
     let mid_ids: Vec<u32> = alphabet::encode("◇⊞⟨⟩●⟨");
     const ANS_CAP: usize = 16;
+
+    let mut harvest_out = harvest.as_ref().map(|p| {
+        std::fs::OpenOptions::new().create(true).append(true).open(p)
+            .expect("open harvest file")
+    });
 
     let mut rng = Rng(0x51CA_FE12_D00D_2026);
     let (mut admitted, mut refused, mut kernel_green, mut self_agree) = (0usize, 0usize, 0usize, 0usize);
@@ -200,14 +244,12 @@ fn main() -> candle_core::Result<()> {
         ids.push(seal_id);
         let turn = alphabet::decode(&ids);
         // The model's self-predicted kernel verdict: the last register token
-        // in the answer arm, spoken back in the oracle's Latin face.
+        // in the answer arm, kept in its glyph face (no Latin anywhere).
         let self_kernel = ids[ids.len() - 3..ids.len() - 1]
             .first()
-            .and_then(|id| {
-                let g = alphabet::decode(&[*id]);
-                alphabet::REG_FACES.iter().find(|(_, f)| *f == g).map(|(n, _)| *n)
-            })
-            .unwrap_or("?");
+            .map(|id| alphabet::decode(&[*id]))
+            .filter(|g| alphabet::REG_FACES.iter().any(|(_, f)| f == g))
+            .unwrap_or_else(|| "?".into());
 
         // ── the gate: the oracles speak over the query word ──────────────
         let check = check_verdict(&run_imasm("check", &word));
@@ -215,7 +257,33 @@ fn main() -> candle_core::Result<()> {
         let admitted_here = check != 'F';
         if admitted_here { admitted += 1; } else { refused += 1; }
         if kernel == 'T' { kernel_green += 1; }
-        let agree = self_kernel == kernel.to_string();
+
+        // ── harvest: the utterance becomes a corpus-schema record ────────
+        if let Some(out) = harvest_out.as_mut() {
+            use std::io::Write as _;
+            let names: Vec<String> = word.chars()
+                .filter_map(|c| OPS.iter().find(|(_, g)| *g == c).map(|(n, _)| n.to_string()))
+                .collect();
+            let eval4 = run_imasm_names("eval", &names);
+            let eval16 = run_imasm_names("eval16", &names);
+            let ids = alphabet::encode(&word);
+            let (canon_k, canon_ids) = alphabet::canonical_rotation(&ids);
+            let record = serde_json::json!({
+                "source": "mouth",
+                "word": word,
+                "flow4": flow_signature(&eval4),
+                "sink4": sink_readout(&eval4),
+                "flow16": flow_signature(&eval16),
+                "sink16": sink_readout(&eval16),
+                "kernel": kernel.to_string(),
+                "self": self_kernel,
+                "canonical_k": canon_k,
+                "canonical_word": alphabet::decode(&canon_ids),
+                "ids": ids,
+            });
+            writeln!(out, "{record}").expect("write harvest record");
+        }
+        let agree = self_kernel == alphabet::reg_face(&kernel.to_string());
         if agree { self_agree += 1; }
 
         println!(

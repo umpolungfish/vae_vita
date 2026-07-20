@@ -1,19 +1,13 @@
-The certified-turn mouth, the register glyph face, and the regimen ob3ect's placement
+The full trilattice diet: ∈/∋ words, sixteen-state readouts, the mouth harvests itself
 
-speak.rs now speaks the spec's own skeleton (a dialogue turn IS an IMASM word):
-the trunk voices the query arm under the kernel's valence discipline, then
-pronounces its own mu-arm readout before the oracles are consulted. Two-column
-report: the oracle's verdict and whether the trunk knew what it said.
+Alphabet: ∈/∋ at the tri-dyad ids, ⊤ retired (B of FOUR wears ▀), no Latin
+anywhere. train.rs speaks flow16·sink16·kernel on the mu arm and places loss
+by verdict: kernel-T records teach the whole turn, everything else teaches
+only the mu arm. speak.rs harvests every utterance as a corpus-schema record
+(source mouth) so the trunk eats its own oracle-judged words; self-verdicts
+are scored glyph against glyph. Data files swept ☊/☋ → ∈/∋.
 
-Register states wear their glyph face: quadrant ink per Reg16_3::glyph() in
-the MoDoT kernel, translated from oracle Latin at the encode boundary by
-alphabet::reg_face(). Same ids, so existing checkpoints carry over unchanged.
-
-train.rs implements the regimen ob3ect's determination (turn-internal
-placement, not proportion, not sequence): real records teach the whole turn,
-synthetic records teach only the mu arm, query spans masked from the loss.
-Measured at the mouth this holds fluency and failure-knowledge in one vessel;
-every self-pronounced B verdict to date has been oracle-confirmed.
-
-README gains the vita_native section describing the NOW of all of this.
-Mixed corpora gitignored: one-command derivable from the committed sets.
+First 16_3 measurement: the mouth now pronounces the real carrier (█ ▐ ░ ▀
+match the corpus sink census) and spoke its first correct ▀ self-call in the
+true ink. Headline rates flat at this scale; the ceiling reads as capacity,
+not diet.

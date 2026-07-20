@@ -8,7 +8,7 @@
 //! Sections, in scripture order (ids are stable; extending appends, never
 //! reorders):
 //!   0. opcodes    — the 12 classic node-opcodes ∪ the SIXTEEN_3 extension
-//!                   (☊ ☋ 3-way fork/fuse, ~ ≁ the two negations): 16 glyphs.
+//!                   (∈ ∋ 3-way fork/fuse, ~ ≁ the two negations): 16 glyphs.
 //!                   Glyph order follows imasm16_3::ALL_TOKENS with ◇ ● placed
 //!                   beside their 3-way siblings.
 //!   1. registers  — the 16 SIXTEEN_3 states P({T,F,t,f}), canonical names per
@@ -24,11 +24,14 @@
 /// (register names like "Tf"); encoding is longest-match.
 pub const VOCAB: &[&str] = &[
     // ── 0. opcodes (16) ─────────────────────────────────────────────────
-    "⊢", "⊣", ">", "<", "=", "⊙", "◇", "●", "☊", "☋", "+", "×", "⊞", "~", "≁", "¬",
-    // ── 1. registers (16 SIXTEEN_3 states) + ⊤ (FOUR/Belnap render of TF) ─
+    // ∈/∋ are the tri-dyad per the unified guide; ∈/∋ were a drifted face.
+    "⊢", "⊣", ">", "<", "=", "⊙", "◇", "●", "∈", "∋", "+", "×", "⊞", "~", "≁", "¬",
+    // ── 1. registers (16 SIXTEEN_3 states) + one retired slot ───────────
     // Glyph face per Reg16_3::glyph(): occupancy of {T,F,t,f} as quadrant
-    // ink (T ▘ F ▝ t ▖ f ▗; N ░ the unmarked field; A █ full). ⊤ is the
-    // Belnap top, the FOUR-collapse of TF — same ids as the old Latin face.
+    // ink (T ▘ F ▝ t ▖ f ▗; N ░ the unmarked field; A █ full). B of FOUR
+    // IS the state {T,F} and wears ▀ — there is no separate verdict
+    // alphabet and no Latin anywhere. The ⊤ slot is retired (it was a
+    // confusion artifact); the id is kept because ids never reorder.
     "░", "█", "▘", "▝", "▖", "▗", "▀", "▌", "▚", "▞", "▐", "▄",
     "▛", "▜", "▙", "▟", "⊤",
     // ── 2. primitives (12; ⊙ appears once, in the opcode section) ───────
@@ -48,7 +51,7 @@ pub const VOCAB: &[&str] = &[
 pub const REG_FACES: &[(&str, &str)] = &[
     ("N", "░"), ("A", "█"), ("T", "▘"), ("F", "▝"), ("t", "▖"), ("f", "▗"),
     ("TF", "▀"), ("Tt", "▌"), ("Tf", "▚"), ("Ft", "▞"), ("Ff", "▐"), ("tf", "▄"),
-    ("TFt", "▛"), ("TFf", "▜"), ("Ttf", "▙"), ("Ftf", "▟"), ("B", "⊤"),
+    ("TFt", "▛"), ("TFf", "▜"), ("Ttf", "▙"), ("Ftf", "▟"), ("B", "▀"),
 ];
 
 /// Translate a kernel readout (oracle output: register names amid structure
@@ -170,7 +173,7 @@ mod tests {
 
     #[test]
     fn roundtrip_16_3_word() {
-        let w = "⊢⊙☊+×⊞~≁☋⊣";
+        let w = "⊢⊙∈+×⊞~≁∋⊣";
         assert_eq!(decode(&encode(w)), w);
     }
 
@@ -179,7 +182,7 @@ mod tests {
         // Oracle Latin names translate to single glyph tokens.
         assert_eq!(reg_face("TFt"), "▛");
         assert_eq!(encode(&reg_face("TFt")).len(), 1);
-        assert_eq!(reg_face("T·F·N·B"), "▘·▝·░·⊤");
+        assert_eq!(reg_face("T·F·N·B"), "▘·▝·░·▀");
         assert_eq!(encode(&reg_face("Tf N A B")).len(), 7);
         // A run that is no register name is carried, and encodes as ?.
         assert_eq!(reg_face("TtN"), "TtN");
