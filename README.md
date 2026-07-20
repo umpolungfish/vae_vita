@@ -91,6 +91,7 @@ The atlas is JSONL, one record per distinct word: the word, its first (minimal) 
 First-atlas findings, reproducible from the command above:
 
 - B is the trunk's dominant register at every temperature; heat drains T mass into N and F. The hotter shells are more foreign and more broken.
+- B has a resonance: sweeping temperature finely (`vita_temperature_curve.png`) shows T falling monotonically and N and F rising monotonically, while B peaks near temperature 0.9 to 0.95. At the peak F locally dips and the novelty rate hits its minimum: at that heat the trunk repeats itself most and holds paradox instead of breaking.
 - The gate letters are phases, not salt-and-pepper: a T word's single-edit neighborhood is about half T, a B word's is mostly B, an N word's mostly N, and an F word's almost entirely F. Verdict regions are contiguous territories in edit space.
 - The language is vast at the default word cap: the novelty rate per seed block barely decays, so the optimized core is thin and the tail enormous.
 

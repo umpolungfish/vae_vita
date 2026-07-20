@@ -1,11 +1,9 @@
-README: the trunk's full present tense
+the B resonance: paradox-holding peaks near temperature 0.9
 
-Brought the README up to what vae_vita now IS: the mouth on the metal
-(vita-bake blob, mOMonadOS no_std forward pass, kernel gate, `vita` at
-the OS prompt), the determinism section (seed is the only entropy;
-(seed, temp) -> turn is a pure function; minimal seed ~ 1/P(word), the
-trunk as decompressor), vita-probe and the seed atlas with the
-first-atlas findings (B-dominant mass, gate letters as contiguous
-phases in edit space, heavy tail), and a Testing section whose every
-command was run before it was written. License badge corrected to
-Unlicense.
+Fine temperature sweep (500 seeds per temp, 0.5 to 1.6): T falls
+monotonically, N and F rise monotonically, but B is non-monotonic with a
+clear peak at 0.90-0.95 (~46% of seed-space mass). At the peak F locally
+dips and novelty per seed block hits its minimum: the resonant heat is
+where the trunk's language is most crystallized, and where it holds
+paradox rather than breaking. Figure vita_temperature_curve.png; README
+carries the finding.
