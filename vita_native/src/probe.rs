@@ -538,6 +538,80 @@ fn spider(word: &str) -> (usize, usize, usize, usize, usize) {
     (seen.len(), t, b, n, f)
 }
 
+// ── the melting curve ─────────────────────────────────────────────────────
+//
+// At fixed seed the word is piecewise-constant in temperature: the draws are
+// frozen, heat only moves sampling thresholds, so nothing changes until a
+// threshold crosses a draw, then one token flips and the tail re-derives.
+// Bisect the breakpoints and print the freeze ladder: each plateau's word,
+// its gate letter, and at each break the position where the word melted.
+
+fn melt(vita: &Vita, seed: u64, cap: usize, lo: f32, hi: f32, eps: f32) {
+    let word_at = |t: f32| -> String { vita.speak_turn(seed, t, cap).0 };
+
+    // recursively find plateau boundaries: (breakpoint temp, word below, word above)
+    fn bisect(
+        f: &dyn Fn(f32) -> String,
+        lo: f32,
+        w_lo: &str,
+        hi: f32,
+        w_hi: &str,
+        eps: f32,
+        out: &mut Vec<(f32, String, String)>,
+    ) {
+        if w_lo == w_hi {
+            return;
+        }
+        if hi - lo <= eps {
+            out.push((hi, w_lo.to_string(), w_hi.to_string()));
+            return;
+        }
+        let mid = 0.5 * (lo + hi);
+        let w_mid = f(mid);
+        bisect(f, lo, w_lo, mid, &w_mid, eps, out);
+        bisect(f, mid, &w_mid, hi, w_hi, eps, out);
+    }
+
+    let w_lo = word_at(lo);
+    let w_hi = word_at(hi);
+    let mut breaks: Vec<(f32, String, String)> = Vec::new();
+    bisect(&word_at, lo, &w_lo, hi, &w_hi, eps, &mut breaks);
+    breaks.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+    breaks.dedup_by(|a, b| a.1 == b.1 && a.2 == b.2);
+
+    println!("═══ melting curve — seed {seed}, temp {lo}..{hi}, resolution {eps} ═══");
+    let mut plateau_lo = lo;
+    let mut current = w_lo.clone();
+    let report = |t0: f32, t1: f32, w: &str| {
+        println!(
+            "  [{t0:>5.3} … {t1:>5.3}]  gate {}  {}",
+            gate_word(w),
+            w
+        );
+    };
+    for (bt, below, above) in &breaks {
+        if *below != current {
+            // nested break resolved out of order; trust the ladder order
+            current = below.clone();
+        }
+        report(plateau_lo, *bt, &current);
+        // where did it melt? first diverging char between the two plateau words
+        let div = current
+            .chars()
+            .zip(above.chars())
+            .take_while(|(a, b)| a == b)
+            .count();
+        let frozen: String = above.chars().take(div).collect();
+        println!(
+            "    ── melts at {bt:.3}: token {div} flips (frozen prefix ⟨{frozen}⟩)",
+        );
+        plateau_lo = *bt;
+        current = above.clone();
+    }
+    report(plateau_lo, hi, &current);
+    println!("  {} plateau(s), {} breakpoint(s)", breaks.len() + 1, breaks.len());
+}
+
 // ── the atlas ─────────────────────────────────────────────────────────────
 
 fn main() {
@@ -551,6 +625,9 @@ fn main() {
     let mut do_spider = false;
     let mut out_path = String::from("vita_atlas.jsonl");
     let mut one: Option<(u64, f32)> = None;
+    let mut melt_seed: Option<u64> = None;
+    let mut melt_range = (0.05f32, 1.6f32);
+    let mut melt_eps = 0.005f32;
 
     let mut i = 1;
     while i < args.len() {
@@ -586,6 +663,22 @@ fn main() {
                 one = Some((s, t));
                 i += 2;
             }
+            "--melt" => {
+                i += 1;
+                melt_seed = Some(args[i].parse().expect("--melt SEED"));
+            }
+            "--melt-range" => {
+                i += 1;
+                let mut it = args[i].split(',');
+                melt_range = (
+                    it.next().unwrap().parse().expect("lo"),
+                    it.next().unwrap().parse().expect("hi"),
+                );
+            }
+            "--melt-eps" => {
+                i += 1;
+                melt_eps = args[i].parse().expect("--melt-eps E");
+            }
             other => panic!("unknown arg {other}"),
         }
         i += 1;
@@ -593,6 +686,11 @@ fn main() {
 
     let bytes = std::fs::read(&weights_path).expect("read weights bin");
     let vita = Vita::load(&bytes).expect("VITA blob");
+
+    if let Some(seed) = melt_seed {
+        melt(&vita, seed, cap, melt_range.0, melt_range.1, melt_eps);
+        return;
+    }
 
     if let Some((s, t)) = one {
         let (word, turn, v) = vita.speak_turn(s, t, cap);

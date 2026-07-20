@@ -84,7 +84,10 @@ The probe enumerates seeds in order and discards already-seen words: the dedup I
 ```
 vita-probe --one 666 0.9                                        parity check: one turn
 vita-probe --seeds 2000 --temps 0.8,1.2,1.6 --spider --out vita_atlas.jsonl
+vita-probe --melt 666                                           the freeze ladder of one seed
 ```
+
+`--melt SEED` exploits the piecewise-constancy of the word along the temperature axis: at fixed seed the random draws are frozen and heat only moves sampling thresholds, so the word changes only where a threshold crosses a draw. The probe bisects those breakpoints (`--melt-range lo,hi`, `--melt-eps` resolution) and prints the ladder: every plateau's word and gate letter, and at each break the token position that flipped with its surviving frozen prefix. The ladder is a fingerprint of the seed, ordering the word's tokens by confidence margin: prefixes freeze first, the cold limit collapses to the trunk's archetype (a bare fork-transform-fuse closure), and the melt point walks forward as heat rises.
 
 The atlas is JSONL, one record per distinct word: the word, its first (minimal) seed, temperature, gate verdict, length, and spider tallies. Note that f32 temperatures serialize with float noise (0.8 arrives as 0.800000011…); compare with tolerance.
 
