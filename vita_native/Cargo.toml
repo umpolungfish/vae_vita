@@ -32,3 +32,7 @@ path = "src/speak.rs"
 [[bin]]
 name = "vita-corpus"
 path = "src/corpus.rs"
+
+[[bin]]
+name = "vita-bake"
+path = "src/bake.rs"

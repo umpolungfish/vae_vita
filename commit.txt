@@ -1,10 +1,5 @@
-The alphabet is derived, not transcribed: vita links imasm_core
+vita-bake: flatten the trained lattice for the OS mouth
 
-vocab() and reg_faces() are built at startup from the kernel's own glyph
-faces (ALL_TOKENS order with the classic dyad seated at its historical ids,
-state_order() for the registers, retired ⊤ slot kept). A face correction in
-the kernel now propagates by recompilation; a stale hand-copy is impossible.
-Verified id-stable against the live tri checkpoint: same seed, same turns,
-byte for byte. The derivation initially interleaved the dyad (◇∈●∋) and the
-checkpoint sanity run caught the id swap before anything shipped — the
-exact bug class this refactor exists to end, dying on its way out.
+New vita-bake binary: safetensors checkpoint → raw VITA blob
+(name/dims/f32-LE per tensor, sorted) so mOMonadOS can include_bytes the
+trunk with no serde on the metal. 37 tensors from vita_lattice_tri.
