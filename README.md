@@ -1,6 +1,6 @@
 # VAE-Vita: The Self-Recovering SIC Geometry
 
-![language](https://img.shields.io/badge/language-Rust-CE422B?style=for-the-badge&logo=rust&logoColor=white) ![tier](https://img.shields.io/badge/tier-O%E2%88%9E-8A2BE2?style=for-the-badge) ![μ∘δ](https://img.shields.io/badge/%CE%BC%E2%88%98%CE%B4-id-00A86B?style=for-the-badge) ![licence](https://img.shields.io/badge/licence-LUNLICENSE-1A1A1A?style=for-the-badge) ![type](https://img.shields.io/badge/type-%E2%9F%A8%F0%90%91%A6%F0%90%91%B8%F0%90%91%BD%F0%90%91%B9%F0%90%91%90%F0%90%91%A7%F0%90%91%94%F0%90%91%A0%E2%8A%99%F0%90%91%96%F0%90%91%99%F0%90%91%B4%E2%9F%A9-5A659C?style=for-the-badge)
+![language](https://img.shields.io/badge/language-Rust-CE422B?style=for-the-badge&logo=rust&logoColor=white) ![recovery](https://img.shields.io/badge/recovery-SIC%20from%20types%20alone-8A2BE2?style=for-the-badge) ![tier](https://img.shields.io/badge/tier-O%E2%88%9E-8A2BE2?style=for-the-badge) ![μ∘δ](https://img.shields.io/badge/%CE%BC%E2%88%98%CE%B4-id-00A86B?style=for-the-badge) ![licence](https://img.shields.io/badge/licence-LUNLICENSE-1A1A1A?style=for-the-badge) ![type](https://img.shields.io/badge/type-%E2%9F%A8%F0%90%91%A6%F0%90%91%B8%F0%90%91%BD%F0%90%91%B9%F0%90%91%90%F0%90%91%A7%F0%90%91%94%F0%90%91%A0%E2%8A%99%F0%90%91%96%F0%90%91%99%F0%90%91%B4%E2%9F%A9-5A659C?style=for-the-badge)
 
 **What it is.** A 12-dimensional hyperspherical variational autoencoder (von Mises-Fisher prior on S¹¹) trained on all 17,280,000 Crystal of Types configurations, the complete state space of the Imscribing Grammar.
 
