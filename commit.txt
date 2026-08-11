@@ -1,10 +1,8 @@
-vita-probe --melt: the freeze ladder
+Take the card from IG_DEVICES
 
-At fixed seed the word is piecewise-constant in temperature (frozen
-draws, moving thresholds), so the melting curve is exactly computable:
-bisect the breakpoints, print every plateau's word and gate, and at each
-break the token that flipped with its frozen prefix. Seed 666 resolves
-to 35 plateaus over 0.05..1.6 at 0.005 resolution in ~20s: the cold
-archetype is the bare closure ⊢>◇×●⊣, the prefix ⊢>◇ never melts across
-the whole range, and the verdict sequence along the ladder walks through
-all four phases including a re-entrant clean-T band in the middle heats.
+vita_native opened cuda:0 and nothing else. Device selection now goes through
+src/device.rs, reading IG_DEVICES the same way ask does: name an ordinal, name
+several and the first present takes the run, cpu to force the CPU. A trunk this
+size fits either card, so the way both cards work at once here is two runs
+pinned to two ordinals — one model each, the whole card each, nothing crossing
+between them.

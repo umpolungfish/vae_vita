@@ -25,11 +25,11 @@
 //! record (oracle-labeled, `source: mouth`) — the autopoietic winding: the
 //! trunk's own words, its own failures included, become the next diet.
 
-use candle_core::{DType, Device, Tensor};
+use candle_core::{DType, Tensor};
 use candle_nn::{VarBuilder, VarMap};
 use std::process::Command;
 
-use vita_native::{alphabet, lattice, model};
+use vita_native::{alphabet, device as ig_device, lattice, model};
 
 enum Net {
     Trunk(model::VitaTrunk),
@@ -138,7 +138,7 @@ fn main() -> candle_core::Result<()> {
     // autopoietic winding: speak → harvest → retrain → speak).
     let harvest = args.get(6).cloned();
 
-    let device = Device::cuda_if_available(0).unwrap_or(Device::Cpu);
+    let device = ig_device::pick();
     let cfg = model::Config::default();
     let mut varmap = VarMap::new();
     let vb = VarBuilder::from_varmap(&varmap, DType::F32, &device);

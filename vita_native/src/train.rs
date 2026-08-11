@@ -19,10 +19,10 @@
 //!   arch — "trunk" (default: 12 uniform layers) or "lattice" (the 26-step
 //!   protocol of the discerning ob3ect, built to spec in lattice.rs)
 
-use candle_core::{DType, Device, Tensor};
+use candle_core::{DType, Tensor};
 use candle_nn::{AdamW, Optimizer, ParamsAdamW, VarBuilder, VarMap};
 
-use vita_native::{alphabet, lattice, model, template};
+use vita_native::{alphabet, device as ig_device, lattice, model, template};
 
 /// The two architectures behind one training loop: the uniform trunk and the
 /// spec-built 26-step lattice. Same interface, disjoint parameter spaces.
@@ -60,7 +60,7 @@ fn main() -> candle_core::Result<()> {
     let out_path = args.get(5).cloned().unwrap_or_else(|| "vita_trunk.safetensors".into());
     let arch = args.get(6).cloned().unwrap_or_else(|| "trunk".into());
 
-    let device = Device::cuda_if_available(0).unwrap_or(Device::Cpu);
+    let device = ig_device::pick();
     eprintln!("[vita-train] device: {:?}", device);
 
     // ── the ring-stream: every record rendered as a certified turn ──────
