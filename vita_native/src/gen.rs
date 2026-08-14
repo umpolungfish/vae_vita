@@ -21,7 +21,7 @@ const ASK: &str = concat!(env!("HOME"), "/imsgct/MoDoT/ask");
 
 /// The 12 classic node-opcodes, name and glyph, in imasm order.
 const OPS: [(&str, char); 16] = [
-    ("VINIT", '⊢'), ("TANCH", '⊣'), ("AFWD", '>'), ("AREV", '<'),
+    ("VINIT", '⊢'), ("TANCH", '⊣'), ("AFWD", '≻'), ("AREV", '≺'),
     ("CLINK", '='), ("IMSCRIB", '⊙'), ("FSPLIT", '◇'), ("FFUSE", '●'),
     ("EVALT", '+'), ("EVALF", '×'), ("ENGAGR", '⊞'), ("IFIX", '¬'),
     ("FSPLIT3", '∈'), ("FFUSE3", '∋'), ("TNEG", '~'), ("INEG", '≁'),

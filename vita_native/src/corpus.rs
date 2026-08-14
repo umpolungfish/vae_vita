@@ -19,7 +19,7 @@ use vita_native::alphabet;
 const ASK: &str = concat!(env!("HOME"), "/imsgct/MoDoT/ask");
 
 const OPS: [(&str, char); 12] = [
-    ("VINIT", '⊢'), ("TANCH", '⊣'), ("AFWD", '>'), ("AREV", '<'),
+    ("VINIT", '⊢'), ("TANCH", '⊣'), ("AFWD", '≻'), ("AREV", '≺'),
     ("CLINK", '='), ("IMSCRIB", '⊙'), ("FSPLIT", '◇'), ("FFUSE", '●'),
     ("EVALT", '+'), ("EVALF", '×'), ("ENGAGR", '⊞'), ("IFIX", '¬'),
 ];
